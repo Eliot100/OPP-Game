@@ -1,11 +1,23 @@
 package gameClient;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import utils.Point3D;
 
 public class Fruit {
 	private double value;
 	private int type;
 	private Point3D pos;
+	
+	public Fruit(JSONObject jsonFruit) throws JSONException {
+		this.value = jsonFruit.getDouble("value");
+		this.type = jsonFruit.getInt("type");
+		String pos  = jsonFruit.getString("pos");
+		String[] xyz = pos.split(",");
+		this.pos = new Point3D(Double.parseDouble(xyz[0]), Double.parseDouble(xyz[1]));
+	}
+	
 	public Point3D getPos() {
 		return pos;
 	}

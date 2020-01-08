@@ -1,5 +1,6 @@
 package gameClient;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -30,10 +31,30 @@ import oop_dataStructure.oop_graph;
  *
  */
 public class SimpleGameClient {
+	private game_service game;
+	private Robot[] robots;
+	private Fruit[] fruits;
+	
 	public static void main(String[] a) {
-		test1();}
+		test1();
+		test0();
+	}
+	
+	private static void test0() {
+		int scenario_num = 20;
+		game_service game = Game_Server.getServer(scenario_num); // you have [0,23] games
+		String g = game.getGraph();
+		OOP_DGraph gg = new OOP_DGraph();
+		gg.init(g);
+		String info = game.toString();
+		try {
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+	}
 	public static void test1() {
-		int scenario_num = 2;
+		int scenario_num = 20;
 		game_service game = Game_Server.getServer(scenario_num); // you have [0,23] games
 		String g = game.getGraph();
 		OOP_DGraph gg = new OOP_DGraph();
@@ -45,23 +66,32 @@ public class SimpleGameClient {
 			JSONObject ttt = line.getJSONObject("GameServer");
 			int rs = ttt.getInt("robots");
 			System.out.println(info);
-			System.out.println(g);
+//			System.out.println(g);
 			// the list of fruits should be considered in your solution
 			Iterator<String> f_iter = game.getFruits().iterator();
 			while(f_iter.hasNext()) {System.out.println(f_iter.next());}	
 			int src_node = 0;  // arbitrary node, you should start at one of the fruits
-			for(int a = 0;a<rs;a++) {
+			for(int a = 0; a < rs; a++) {
 				game.addRobot(src_node+a);
+			}
+			List<String> jsonRobots = game.getRobots();
+			
+			for (String st : jsonRobots) {
+				System.out.println(st);
+				line = new JSONObject(st);
+				JSONObject JsonRobot = line.getJSONObject("Robot");
+				Robot r = new Robot(JsonRobot);
+				
 			}
 		}
 		catch (JSONException e) {e.printStackTrace();}
-		game.startGame();
-		// should be a Thread!!!
-		while(game.isRunning()) {
-			moveRobots(game, gg);
-		}
-		String results = game.toString();
-		System.out.println("Game Over: "+results);
+//		game.startGame();
+//		// should be a Thread!!!
+//		while(game.isRunning()) {
+//			moveRobots(game, gg);
+//		}
+//		String results = game.toString();
+//		System.out.println("Game Over: "+results);
 	}
 	/** 
 	 * Moves each of the robots along the edge, 
@@ -110,6 +140,16 @@ public class SimpleGameClient {
 		while(i<r) {itr.next();i++;}
 		ans = itr.next().getDest();
 		return ans;
+	}
+	
+	public Fruit[] getFruits() {
+		return null;
+//		return game.getFruits();
+	}
+	
+	public Robot[] getRobots() {
+		return null;
+//		return game.getFruits();
 	}
 
 }

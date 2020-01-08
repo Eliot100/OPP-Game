@@ -22,10 +22,11 @@ import dataStructure.edge_data;
 import dataStructure.node_data;
 import utils.Point3D;
 /**
- * This class represent a GUI for DGraph class.
+ * This clas 
  * @author Eli Ruvinov
  */
 public class GUI_Window extends JFrame implements ActionListener, MouseListener, MouseMotionListener {
+
 	private static final long serialVersionUID = -6463212983253616784L;
 	private Graph_Algo Graph_Algo ;
 	private LinkedList<node_data> BoltedPath; 
@@ -33,19 +34,19 @@ public class GUI_Window extends JFrame implements ActionListener, MouseListener,
 	private static final Color edgeTextColor = new Color(50, 50, 200);
 	private static final int YUPborder = 50;
 	private static final int border = 25;
-	private static int minY;
-	private static int minX;
-	private static int maxY;
-	private static int maxX;
+	private static double minY;
+	private static double minX;
+	private static double maxY;
+	private static double maxX;
 	private static Scanner s = new Scanner(System.in);
 	/**
 	 * this is an example how to make the GUI_Window object.
 	 */
 	public static void main(String[] args) throws InterruptedException {
-		DGraph d = DGraph.makeRandomGraph(6, 100);
+		DGraph d = DGraph.makeRandomGraph(6, 200);
 		new GUI_Window(d);
 	}
-	/**1
+	/**
 	 * Constructor for empty GUI_Window.
 	 */
 	public GUI_Window() {
@@ -75,21 +76,21 @@ public class GUI_Window extends JFrame implements ActionListener, MouseListener,
 			for ( Iterator<node_data> iterator = Graph_Algo.graph.getV().iterator() ; iterator.hasNext();) {
 				node_data node = iterator.next();
 				if(b) {
-					minX = node.getLocation().ix();
-					maxX = node.getLocation().ix();
-					minY = node.getLocation().iy();
-					maxY = node.getLocation().iy();
+					minX = node.getLocation().x() ;
+					maxX = node.getLocation().x();
+					minY = node.getLocation().y();
+					maxY = node.getLocation().y();
 					b = false;
 				} else {
-					if (node.getLocation().ix() < minX ) {
-						minX = node.getLocation().ix();
-					} else if (node.getLocation().ix() > maxX) {
-						maxX = node.getLocation().ix();
+					if (node.getLocation().x() < minX ) {
+						minX = node.getLocation().x();
+					} else if (node.getLocation().x() > maxX) {
+						maxX = node.getLocation().x();
 					}
-					if (node.getLocation().iy() < minY ) {
-						minY = node.getLocation().iy();
-					} else if (node.getLocation().iy() > maxY) {
-						maxY = node.getLocation().iy();
+					if (node.getLocation().y() < minY ) {
+						minY = node.getLocation().y();
+					} else if (node.getLocation().y() > maxY) {
+						maxY = node.getLocation().y();
 					}
 				}
 
@@ -107,6 +108,15 @@ public class GUI_Window extends JFrame implements ActionListener, MouseListener,
 			node_data node = iterator.next();
 			drowNode(node, g);
 		}
+		
+	}
+
+	private int ScaleY(double y) {
+		return (int) scale(y, minY, maxY, YUPborder+border, this.get_Height()-border );
+	}
+
+	private int ScaleX(double x) {
+		return (int) scale(x, minX, maxX, border, this.get_Width()-border );
 	}
 	/**
 	 * 
@@ -117,35 +127,27 @@ public class GUI_Window extends JFrame implements ActionListener, MouseListener,
 	 * @param t_max the maximum of the range of your desired target scaling
 	 * @return
 	 */
-	private static double scale(double data, double r_min, double r_max,double t_min, double t_max){
+	private double scale(double data, double r_min, double r_max, double t_min, double t_max){
 		double res = ((data - r_min) / (r_max-r_min)) * (t_max - t_min) + t_min;
 		return res;
-	}
-
-	private int ScaleY(double y) {
-		return (int) scale(y, minY, maxY, YUPborder+border, this.get_Height()-border) ;
-	}
-
-	private int ScaleX(double x) {
-		return (int) scale(x, minX, maxX, border, this.get_Width()-border) ;
 	}
 
 	private void drowEdge(edge_data edge, Graphics g) {
 		Point3D sorce = Graph_Algo.graph.getNode(edge.getSrc()).getLocation();
 		Point3D dest = Graph_Algo.graph.getNode(edge.getDest()).getLocation();
 		g.setColor(edgeColor);
-		g.drawLine(ScaleX(sorce.ix()), ScaleY(sorce.iy()), ScaleX(dest.ix()), ScaleY(dest.iy()));
+		g.drawLine(ScaleX(sorce.x()), ScaleY(sorce.y()), ScaleX(dest.x()), ScaleY(dest.y()));
 		drowBoltedPath(BoltedPath, g);
 		g.setColor(edgeColor);
 		Point3D DirectionPoint = edgeDirectionPoint( sorce, dest);
 		g.fillOval(ScaleX(DirectionPoint.x())-5, ScaleY(DirectionPoint.y())-5, 8, 8);
 		g.setColor(edgeTextColor);  
 		Point3D TextPoint = edgeTextPoint( sorce, dest);
-		g.drawString(String.format("%.2f", edge.getWeight()), ScaleX(TextPoint.ix()), ScaleY(TextPoint.iy()));
+		g.drawString(String.format("%.2f", edge.getWeight()), ScaleX(TextPoint.x()), ScaleY(TextPoint.y()));
 	}
 	private void drowNode(node_data node, Graphics g) {
 		g.setColor(Color.MAGENTA);
-		g.fillOval(ScaleX(node.getLocation().x())-9, ScaleY(node.getLocation().y())-12, 18, 18);
+		g.fillOval(ScaleX(node.getLocation().x())-9, ScaleY(node.getLocation().y())-12, 22, 22);
 		g.setColor(edgeColor);
 		g.drawString(""+node.getKey(), ScaleX(node.getLocation().x()), ScaleY( node.getLocation().y()));
 	}
@@ -159,7 +161,7 @@ public class GUI_Window extends JFrame implements ActionListener, MouseListener,
 				Point3D sorce = lastNode.getLocation();
 				Point3D dest = node.getLocation();
 				for (int i = 0; i < 4; i++) {
-					g.drawLine(ScaleX(sorce.ix())-2+i, ScaleY(sorce.iy())-2+i, ScaleX(dest.ix())-2+i, ScaleY(dest.iy())-2+i);
+					g.drawLine(ScaleX(sorce.x())-2+i, ScaleY(sorce.y())-2+i, ScaleX(dest.x())-2+i, ScaleY(dest.y())-2+i);
 				}
 				lastNode = node;
 			}
@@ -187,7 +189,7 @@ public class GUI_Window extends JFrame implements ActionListener, MouseListener,
 		this.setResizable(false);
 		this.setBackground(Color.WHITE);
 		this.setTitle(" GUI ");
-		
+
 		this.Graph_Algo = new Graph_Algo();
 		this.Graph_Algo.graph = new DGraph();
 
