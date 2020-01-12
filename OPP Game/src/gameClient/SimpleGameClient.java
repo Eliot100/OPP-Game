@@ -10,6 +10,8 @@ import org.json.JSONObject;
 
 import Server.Game_Server;
 import Server.game_service;
+import dataStructure.Fruit;
+import dataStructure.Robot;
 import oop_dataStructure.OOP_DGraph;
 import oop_dataStructure.oop_edge_data;
 import oop_dataStructure.oop_graph;
