@@ -1,93 +1,77 @@
 package dataStructure;
 
-import java.util.Iterator;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.google.gson.Gson;
-
-import Server.game_service;
-import gameClient.MainGameClient;
-import utils.Point3D;
-
-public class Arena {
+/**
+ * This class is my implementation of my arena_data interface.
+ * @author Eli Ruvinov
+ */
+public class Arena implements arena_data {
+	/**
+	 * This field represents the (directed) graph of the Arena.
+	 */
 	private DGraph graph;
-	private Fruit[] fruits;
-	private Robot[] robots;
-	
-	public Arena(game_service game) throws JSONException {
-		createDGraph(game);
-		createFruits(game);
-		createRobots(game);
-	}
-	
-	private void createDGraph(game_service game) {
-		DGraph graph = new DGraph();
-		Gson gson = new Gson();
-		microDGraph collections = gson.fromJson(MainGameClient.getGraphStr(game), microDGraph.class);
-		for (microNode node : collections.getNodes()) {
-			String[] xyz = node.getPos().split(",");
-			Point3D p = new Point3D(Double.parseDouble(xyz[0]), Double.parseDouble(xyz[1]));
-			graph.addNode( new Node(node.getId(), p));
-		}
-		for (microEdge edge : collections.getEdges()) {
-			graph.connect(edge.getSrc(), edge.getDest(), edge.getW());
-		}
+	/**
+	 * This field represents the fruits of the Arena.
+	 */
+	private fruit_data[] fruits;
+	/**
+	 * This field represents the robots of the Arena.
+	 */
+	private robot_data[] robots;
+	/**
+	 * This function is a constructor of the Arena.
+	 * @param graph - the (directed) graph of the Arena.
+	 * @param fruits - the fruits of the Arena.
+	 * @param robots - the robots of the Arena.
+	 */
+	public Arena(DGraph graph, fruit_data[] fruits, robot_data[] robots) {
 		this.graph = graph;
-	}
-	
-	private void createRobots(game_service game) throws JSONException {
-		this.robots = new Robot[MainGameClient.getRobotsNum(game.toString())];
-	}
-
-	private void createFruits(game_service game) throws JSONException {
-		Fruit[] fruits = new Fruit[MainGameClient.getFruitsNum(game.toString())];
-		Iterator<String> f_iter = game.getFruits().iterator();
-		int i = 0;
-		while(f_iter.hasNext()) {
-			JSONObject JSONfruit = (new JSONObject(f_iter.next())).getJSONObject("Fruit");
-			fruits[i] = new Fruit(JSONfruit) ;
-			i++;
-		}
 		this.fruits = fruits;
+		this.robots = robots;
 	}
-
+	/**
+	 * @return the fruits from the Arena.
+	 */
+	@Override
+	public fruit_data[] getFruits() {
+		return fruits;
+	}
+	/**
+	 * This function is change the arena_data fruit_data array to be new fruit_data array.
+	 * @param fruits - the new fruit_data array.
+	 */
+	@Override
+	public robot_data[] getRobots() {
+		return robots;
+	}
+	/**
+	 * @return the graph of the Arena.
+	 */
+	@Override
 	public DGraph getGraph() {
 		return graph;
 	}
+	/**
+	 * This function is change the Arena graph to be new directed graph.
+	 * @param graph - the new directed graph.
+	 */
+	@Override
 	public void setGraph(DGraph graph) {
 		this.graph = graph;
 	}
-	public Fruit[] getFruits() {
-		return fruits;
-	}
-	public void setFruits(Fruit[] fruits) {
+	/**
+	 * This function is change the Arena fruit_data array to be new fruit_data array.
+	 * @param fruits - the new fruit_data array.
+	 */
+	@Override
+	public void setFruits(fruit_data[] fruits) {
 		this.fruits = fruits;
 	}
-	public Robot[] getRobots() {
-		return robots;
-	}
-	public void setRobots(Robot[] robots) {
+	/**
+	 * This function is change the arena_data robot_data array to be new robot_data array.
+	 * @param robots - the new robot_data array.
+	 */
+	@Override
+	public void setRobots(robot_data[] robots) {
 		this.robots = robots;
 	}
-
-	public void setFruits(game_service game) throws JSONException {
-		Iterator<String> f_iter = game.getFruits().iterator();
-		int i = 0;
-		while(f_iter.hasNext()) {
-			JSONObject JSONfruit = (new JSONObject(f_iter.next())).getJSONObject("Fruit");
-			this.fruits[i] = new Fruit(JSONfruit) ;
-			i++;
-		}
-	}
-
-	public void setRobots(game_service game) throws JSONException {
-		Iterator<String> r_iter = game.getRobots().iterator();
-		for(int i = 0; r_iter.hasNext(); i++) {
-			JSONObject jsonrobot = (new JSONObject(r_iter.next())).getJSONObject("Robot");
-			this.robots[i] = new Robot(jsonrobot);
-		}
-	}
-
 }

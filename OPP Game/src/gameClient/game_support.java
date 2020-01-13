@@ -1,8 +1,7 @@
 package gameClient;
 
+import Server.game_service;
 import dataStructure.DGraph;
-import dataStructure.Fruit;
-import dataStructure.Robot;
 import dataStructure.fruit_data;
 import dataStructure.robot_data;
 /**
@@ -13,11 +12,23 @@ public interface game_support {
 	/**
 	 * @return the fruits from the game.
 	 */
+	public game_service getGameService() ;
+	/**
+	 * @return the fruits from the game.
+	 */
 	public fruit_data[] getFruits() ;
+	/**
+	 * @return how many fruit_data there is in the game.
+	 */
+	public int fruitsSize();
 	/**
 	 * @return the robots from the game.
 	 */
-	public robot_data[] getRobots() ;
+	public robot_data[] getRobots();
+	/**
+	 * @return how many robot_data there is in the game.
+	 */
+	public int robotsSize();
 	/**
 	 * @return the graph (directed) of the game.
 	 */
