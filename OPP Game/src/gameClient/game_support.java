@@ -3,6 +3,8 @@ package gameClient;
 import dataStructure.DGraph;
 import dataStructure.Fruit;
 import dataStructure.Robot;
+import dataStructure.fruit_data;
+import dataStructure.robot_data;
 /**
  * This interface represents the connection between the GameServer and the rest of the code.
  * @author Eli Ruvinov
@@ -11,11 +13,11 @@ public interface game_support {
 	/**
 	 * @return the fruits from the game.
 	 */
-	public Fruit[] getFruits() ;
+	public fruit_data[] getFruits() ;
 	/**
 	 * @return the robots from the game.
 	 */
-	public Robot[] getRobots() ;
+	public robot_data[] getRobots() ;
 	/**
 	 * @return the graph (directed) of the game.
 	 */
