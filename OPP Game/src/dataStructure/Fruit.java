@@ -5,7 +5,7 @@ import org.json.JSONObject;
 
 import utils.Point3D;
 /**
- * this class is my implementation of fruit_data interface.
+ * This class is my implementation of my fruit_data interface.
  * @author Eli Ruvinov
  */
 public class Fruit implements fruit_data {
