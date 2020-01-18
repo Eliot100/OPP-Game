@@ -343,33 +343,31 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 		public void run() {
 			GameGUI.newPivot = false;
 			
-			robot_data theRobot = null;
-			while (theRobot == null)
-				theRobot = setRobot();
+			robot_data theRobot = setRobot();
 			System.out.println("loc robot : "+theRobot.getPos());
 			
-			node_data target = null;
-			while (target == null)
-				target = setTarget(GameGUI, theRobot);
+			node_data target = setTarget(GameGUI, theRobot);
 			System.out.println("loc target : "+target.getLocation());
+			
 			theRobot.setDest(target.getKey());
 			GameGUI.gameSupport.RobotNextNode(theRobot.getId(), target.getKey());
 			GameGUI.gameSupport.moveRobots();
-			System.out.println("loc robot : "+theRobot.getPos());
 		}
 		
 
 		private robot_data setRobot() {
 			robot_data[] robots = arena.getRobots();
 			robot_data theRobot = null;
-			Point3D robotLoc = setPoint(GameGUI);
-			System.out.println(robotLoc);
-			boolean first = true;
+			Point3D pivotLoc = setPoint(GameGUI);
 			double minDis = 0;
 			for (int i = 0; i < robots.length; i++) { 
-				if (first || robots[i].getPos().distance3D(robotLoc) < minDis ) {
+				Point3D ScaleRobotLoc = GameGUI.ScaledLoc( robots[i].getPos());
+				if (i == 0) {
 					theRobot = robots[i];
-					minDis = robots[i].getPos().distance3D(robotLoc);
+					minDis = ScaleRobotLoc.distance2D(pivotLoc);
+				} else if( ScaleRobotLoc.distance2D(pivotLoc) < minDis ) {
+					theRobot = robots[i];
+					minDis = ScaleRobotLoc.distance2D(pivotLoc);
 				}
 			}
 			return theRobot;
@@ -381,7 +379,7 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 				Point3D targetLoc = setPoint(GameGUI);
 				for (edge_data edge : arena.getGraph().getE(robotNode.getKey())) {
 					Point3D ScaleLocation = GameGUI.ScaledLoc( arena.getGraph().getNode(edge.getDest()).getLocation());
-					if (ScaleLocation.distance3D(targetLoc) < (GameGUI.nodeRad*4)) {
+					if (ScaleLocation.distance2D(targetLoc) < (GameGUI.nodeRad*4)) {
 						return arena.getGraph().getNode(edge.getDest());
 					}
 				}
@@ -466,12 +464,12 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 			for (Iterator<node_data> iterator = GameGUI.arena.getGraph().getV().iterator(); iterator.hasNext();) {
 				node_data node = iterator.next();
 				Point3D ScaleLocation = GameGUI.ScaledLoc( node.getLocation());
-				if (ScaleLocation.distance3D(tempPivot) < (GameGUI.nodeRad*4) ) {
+				if (ScaleLocation.distance2D(tempPivot) < (GameGUI.nodeRad*4) ) {
 					if (first) {
 						Addnode = node;
 						first = false;
 					}
-					else if (ScaleLocation.distance3D(tempPivot) < Addnode.getLocation().distance3D(tempPivot) ) {
+					else if (ScaleLocation.distance2D(tempPivot) < Addnode.getLocation().distance3D(tempPivot) ) {
 						Addnode = node;
 					}
 				}
