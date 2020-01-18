@@ -122,15 +122,6 @@ public class Graph_Algo implements graph_algorithms{
 		private HashMap<Integer, Node> nodeHash;
 		private HashMap<Integer, HashMap<Integer, Edge>> edgeHash;
 		private int edgeHashSize;
-		
-		public DG_params(int lastId, int MC, HashMap<Integer, Node> nodeHash, 
-				HashMap<Integer, HashMap<Integer, Edge>> edgeHash, int edgeHashSize) {
-			this.lastId = lastId;
-			this.MC = MC;
-			this.nodeHash = nodeHash;
-			this.edgeHash = edgeHash;
-			this.edgeHashSize = edgeHashSize;
-		}
 	}
 
 	@Override

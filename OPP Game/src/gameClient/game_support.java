@@ -34,6 +34,14 @@ public interface game_support {
 	 */
 	public DGraph getGraph() ;
 	/**
+	 * @return how many moves was playd.
+	 */
+	public int getMoves() ;
+	/**
+	 * @return the grade of the game.
+	 */
+	public double getGrade() ;
+	/**
 	 * This function is giving the game server the order 
 	 * to move the robots in the directed graph of the game.
 	 */
@@ -41,10 +49,9 @@ public interface game_support {
 	/**
 	 * This function is giving the game server the order 
 	 * to put robot in node of the game graph.
-	 * @param robotId - the id of the robot you want to put.
 	 * @param nodeKey - the key of the node which you want to put the robot.
 	 */
-	public void placeRobot(int robotId, int nodeKey);
+	public void placeRobot(int nodeKey);
 	/**
 	 * This function is giving the game server the order 
 	 * to change the robot destination by node key.
