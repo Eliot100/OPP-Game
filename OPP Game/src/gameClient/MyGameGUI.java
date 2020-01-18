@@ -1,4 +1,4 @@
-package gui;
+package gameClient;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -24,11 +24,9 @@ import dataStructure.edge_data;
 import dataStructure.fruit_data;
 import dataStructure.node_data;
 import dataStructure.robot_data;
-import gameClient.MainGameClient;
-import gameClient.game_support;
 import utils.Point3D;
 
-public class manualGameGUI extends JFrame implements ActionListener, MouseListener, MouseMotionListener {
+public class MyGameGUI extends JFrame implements ActionListener, MouseListener, MouseMotionListener {
 	private static final long serialVersionUID = 1;
 	private game_support gameSupport;
 	private Arena arena;
@@ -60,12 +58,12 @@ public class manualGameGUI extends JFrame implements ActionListener, MouseListen
 	 * this is an example how to make the GUI_Window object.
 	 */
 	public static void main(String[] args) {
-		new manualGameGUI();
+		new MyGameGUI();
 	}
 	/**
 	 * Constructor for GUI_Window with a graph in it.
 	 */
-	public manualGameGUI() {
+	public MyGameGUI() {
 		firstPaint = true;
 		init(); 
 		bi = new BufferedImage(1500, 1000, BufferedImage.TYPE_INT_RGB );
@@ -256,28 +254,11 @@ public class manualGameGUI extends JFrame implements ActionListener, MouseListen
 			}
 	}
 
-	//	private void init() {
-	//		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-	//		this.setResizable(false);
-	//		this.setBackground(Color.WHITE);
-	//		this.setTitle(" GUI ");
-	//
-	//		this.addMouseListener(this);
-	//		this.setSize(800, 500);
-	//		this.setVisible(true);
-	//	}
+	@Override
+	public void mouseDragged(MouseEvent e) {}
 
 	@Override
-	public void mouseDragged(MouseEvent e) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void mouseMoved(MouseEvent e) {
-		// TODO Auto-generated method stub
-
-	}
+	public void mouseMoved(MouseEvent e) {}
 
 	@Override
 	public void mouseClicked(MouseEvent arg0) {
@@ -288,28 +269,16 @@ public class manualGameGUI extends JFrame implements ActionListener, MouseListen
 	}
 	
 	@Override
-	public void mouseEntered(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-
-	}
+	public void mouseEntered(MouseEvent arg0) {}
 
 	@Override
-	public void mouseExited(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-
-	}
+	public void mouseExited(MouseEvent arg0) {}
 
 	@Override
-	public void mousePressed(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-
-	}
+	public void mousePressed(MouseEvent arg0) {}
 
 	@Override
-	public void mouseReleased(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-
-	}
+	public void mouseReleased(MouseEvent arg0) {}
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
@@ -364,9 +333,9 @@ public class manualGameGUI extends JFrame implements ActionListener, MouseListen
 	}
 	
 	private class moveRobot implements Runnable {
-		manualGameGUI GameGUI;
+		MyGameGUI GameGUI;
 		
-		public moveRobot (manualGameGUI myGameGUI) {
+		public moveRobot (MyGameGUI myGameGUI) {
 			this.GameGUI = myGameGUI;
 		}
 		
@@ -383,16 +352,9 @@ public class manualGameGUI extends JFrame implements ActionListener, MouseListen
 			while (target == null)
 				target = setTarget(GameGUI, theRobot);
 			System.out.println("loc target : "+target.getLocation());
-//			edge_data edge = arena.getGraph().getEdge(theRobot.getSrc(), target.getKey());
 			theRobot.setDest(target.getKey());
 			GameGUI.gameSupport.RobotNextNode(theRobot.getId(), target.getKey());
 			GameGUI.gameSupport.moveRobots();
-//			double time = edge.getWeight()/theRobot.getSpeed();
-//			try {
-//				Thread.sleep((long) time*360);
-//			} catch (InterruptedException e) {
-//				e.printStackTrace();
-//			};Pos(target.getLocation());
 			System.out.println("loc robot : "+theRobot.getPos());
 		}
 		
@@ -413,13 +375,13 @@ public class manualGameGUI extends JFrame implements ActionListener, MouseListen
 			return theRobot;
 		}
 
-		private node_data setTarget(manualGameGUI gameGUI, robot_data theRobot) {
+		private node_data setTarget(MyGameGUI gameGUI, robot_data theRobot) {
 			node_data robotNode = arena.getGraph().getNode(theRobot.getSrc());
 			while (true) {
 				Point3D targetLoc = setPoint(GameGUI);
 				for (edge_data edge : arena.getGraph().getE(robotNode.getKey())) {
 					Point3D ScaleLocation = GameGUI.ScaledLoc( arena.getGraph().getNode(edge.getDest()).getLocation());
-					if (ScaleLocation.distance3D(targetLoc) < (GameGUI.nodeRad*2)) {
+					if (ScaleLocation.distance3D(targetLoc) < (GameGUI.nodeRad*4)) {
 						return arena.getGraph().getNode(edge.getDest());
 					}
 				}
@@ -428,12 +390,10 @@ public class manualGameGUI extends JFrame implements ActionListener, MouseListen
 	}
 	
 	private class runGame implements Runnable {
-		manualGameGUI GameGUI;
-		public boolean runing;
+		MyGameGUI GameGUI;
 		
-		public runGame (manualGameGUI myGameGUI) {
+		public runGame (MyGameGUI myGameGUI) {
 			this.GameGUI = myGameGUI;
-			runing = true;
 		}
 		
 		@Override
@@ -464,6 +424,7 @@ public class manualGameGUI extends JFrame implements ActionListener, MouseListen
 		private boolean toRepaint(robot_data[] robots2, fruit_data[] fruits2) {
 			robot_data[] robots = gameSupport.getRobots();
 			fruit_data[] fruits = gameSupport.getFruits();
+			try {
 			for (int i = 0; i < fruits.length; i++) {
 				if(!fruits[i].getPos().equals(fruits2[i].getPos()) )
 					return true;
@@ -472,12 +433,13 @@ public class manualGameGUI extends JFrame implements ActionListener, MouseListen
 				if(!robots[i].getPos().equals(robots2[i].getPos()) )
 					return true;
 			}
+			} catch (Exception e) {}
 			return false;
 		}
 
 	}
 	
-	private static Point3D setPoint(manualGameGUI GameGUI) {
+	private static Point3D setPoint(MyGameGUI GameGUI) {
 		while(true) {
 			if (GameGUI.newPivot) {
 				GameGUI.newPivot = false;
@@ -493,9 +455,9 @@ public class manualGameGUI extends JFrame implements ActionListener, MouseListen
 	}
 	
 	private class SetsRonots implements Runnable {
-		manualGameGUI GameGUI;
+		MyGameGUI GameGUI;
 		
-		public SetsRonots (manualGameGUI myGameGUI) {
+		public SetsRonots (MyGameGUI myGameGUI) {
 			this.GameGUI = myGameGUI;
 		}
 		
@@ -504,7 +466,7 @@ public class manualGameGUI extends JFrame implements ActionListener, MouseListen
 			for (Iterator<node_data> iterator = GameGUI.arena.getGraph().getV().iterator(); iterator.hasNext();) {
 				node_data node = iterator.next();
 				Point3D ScaleLocation = GameGUI.ScaledLoc( node.getLocation());
-				if (ScaleLocation.distance3D(tempPivot) < (GameGUI.nodeRad*2) ) {
+				if (ScaleLocation.distance3D(tempPivot) < (GameGUI.nodeRad*4) ) {
 					if (first) {
 						Addnode = node;
 						first = false;
@@ -541,7 +503,6 @@ public class manualGameGUI extends JFrame implements ActionListener, MouseListen
 			isRobotSets = true;
 			GameGUI.repaint();
 		}
-
 	}
 
 }

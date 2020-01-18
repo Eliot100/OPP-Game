@@ -146,8 +146,12 @@ public class MainGameClient implements game_support {
 	}
 
 	@Override
-	public long time2End() {
+	public long time2End() { 
+		try {
 		return game.timeToEnd();
+		} catch (Exception e) {
+			return 0;
+		}
 	}
 
 	@Override
