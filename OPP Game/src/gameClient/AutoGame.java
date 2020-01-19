@@ -40,7 +40,6 @@ public class AutoGame {
 				Support.placeRobot(randomPlace(arena.getGraph()));
 			}
 		}
-
 	}
 
 	private int randomPlace(DGraph graph) {

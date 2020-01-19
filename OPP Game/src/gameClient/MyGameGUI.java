@@ -270,18 +270,18 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 	}
 
 	@Override
-	public void mouseDragged(MouseEvent e) {}
-
-	@Override
-	public void mouseMoved(MouseEvent e) {}
-
-	@Override
 	public void mouseClicked(MouseEvent arg0) {
 		int x0 = arg0.getX();
 		int y0 = arg0.getY();
 		pivot = new Point3D(x0, y0-YUPborder);
 		newPivot = true;
 	}
+	
+	@Override
+	public void mouseDragged(MouseEvent e) {}
+
+	@Override
+	public void mouseMoved(MouseEvent e) {}
 	
 	@Override
 	public void mouseEntered(MouseEvent arg0) {}
@@ -316,6 +316,9 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 					if (isAuto) {
 						AutoGame = new AutoGame(gameSupport, arena);
 						AutoGame.setRobots();
+						isRobotSets = true;
+						this.arena.setRobots(gameSupport.getRobots());
+						repaint();
 					} else {
 						SetsRonots SR = new SetsRonots(this);
 						Thread t = new Thread(SR);
