@@ -12,8 +12,11 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.Iterator;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
@@ -22,6 +25,7 @@ import Server.game_service;
 import dataStructure.Arena;
 import dataStructure.edge_data;
 import dataStructure.fruit_data;
+import dataStructure.fruits;
 import dataStructure.node_data;
 import dataStructure.robot_data;
 import utils.Point3D;
@@ -32,6 +36,7 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 	private Arena arena;
 	public Point3D pivot;
 	private BufferedImage bi;
+	private BufferedImage RobotImage;
 	private Insets Insets;
 	private AutoGame AutoGame;
 	
@@ -46,12 +51,13 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 	private static final Color edgeColor = new Color(80, 80, 80);
 	private static final Color edgeTextColor = new Color(50, 50, 200);
 	private static final int YUPborder = 35;
-	private static final int border = 35;
+	private static final int border = 45;
 	private int nodeRad = 10;
 	private boolean isGameBegin;
 	private boolean firstPaint;
 	private boolean isAuto;
-	private static boolean isRobotSets;
+	private boolean isEnded;
+	private boolean isRobotSets;
 	private static double minY;
 	private static double minX;
 	private static double maxY;
@@ -66,7 +72,12 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 	 * Constructor for GUI_Window with a graph in it.
 	 */
 	public MyGameGUI() {
-		String userAns = JOptionPane.showInputDialog("Enter A for Aotomatic gui, else the window will be manual." );
+		try {
+			RobotImage = ImageIO.read(new File("evea.jpg"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		String userAns = JOptionPane.showInputDialog("Enter 'A' for Aotomatic gui, else the window will be manual." );
 		if (userAns.equals("A")) {
 			isAuto = true;
 		}
@@ -188,10 +199,10 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 		g.drawString(String.format("%.2f", edge.getWeight()), ScaleX(TextPoint.x()), ScaleY(TextPoint.y()));
 	}
 	private void drowNode(node_data node, Graphics g) {
-		g.setColor(Color.MAGENTA);
-		g.fillOval(ScaleX(node.getLocation().x())-9, ScaleY(node.getLocation().y())-(int)(nodeRad/2), (int)nodeRad, (int)nodeRad);
-		g.setColor(edgeColor);
-		g.drawString(""+node.getKey(), ScaleX(node.getLocation().x()), ScaleY( node.getLocation().y()));
+		g.setColor(Color.BLUE);
+		g.fillOval(ScaleX(node.getLocation().x())-(int)(nodeRad/2), ScaleY(node.getLocation().y())-(int)(nodeRad/2), (int)nodeRad, (int)nodeRad);
+		g.setColor(Color.BLUE);
+		g.drawString(""+node.getKey(), ScaleX(node.getLocation().x())-2, ScaleY( node.getLocation().y())-9);
 	}
 
 	private Point3D edgeDirectionPoint(Point3D srcPoint, Point3D destPoint) {
@@ -237,14 +248,16 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 	}
 
 	private void paintTime(Graphics g) {
+		g.setColor(Color.BLACK);
 		if (arena != null && gameSupport.time2End() != -1) {
 			g.drawString("time to end : "+String.format("%.2f", (double) gameSupport.time2End()/360), 20, 20);
-		} else if (arena != null) {
-			g.drawString("time to end : ", 20, 20);
+		} else if (isEnded) {
+			g.drawString("time to end : 0", 20, 20);
 		}
 	}
 	
 	private void paintScore(Graphics g) {
+		g.setColor(Color.BLACK);
 		if (arena != null ) {
 			g.drawString("Score : "+String.format("%.2f", (double) gameSupport.getGrade()), getWidth()/2, 20);
 		} 
@@ -252,20 +265,19 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 
 	private void paintFruit(Graphics g) {
 		for (int i = 0; i < arena.getFruits().length; i++) {
-			g.setColor(Color.PINK);
+			if (arena.getFruits()[i].getType() == fruits.apple) {
+				g.setColor(Color.green);
+			} else if (arena.getFruits()[i].getType() == fruits.banana) {
+				g.setColor(Color.yellow);
+			}
 			g.fillOval(ScaleX(arena.getFruits()[i].getPos().x())-8, ScaleY(arena.getFruits()[i].getPos().y())-8, 16, 16);
-			g.setColor(Color.black);
-			g.drawString(""+arena.getFruits()[i].getType(), ScaleX(arena.getFruits()[i].getPos().x())-4, ScaleY(arena.getFruits()[i].getPos().y())+2);
 		}
 	}
 
 	private void paintRobot(Graphics g) {
 		if( isRobotSets)
 			for (int i = 0; i < arena.getRobots().length; i++) {
-				g.setColor(Colors[i%Colors.length]);
-				g.fillOval(ScaleX(arena.getRobots()[i].getPos().x())-11, ScaleY(arena.getRobots()[i].getPos().y())-13, 25, 25);
-				g.setColor(Color.black);
-				g.drawString(""+arena.getRobots()[i].getId(), ScaleX(arena.getRobots()[i].getPos().x())-1, ScaleY(arena.getRobots()[i].getPos().y())+1);
+				g.drawImage(RobotImage,ScaleX(arena.getRobots()[i].getPos().x())-10, ScaleY(arena.getRobots()[i].getPos().y())-15, 20, 30, null);
 			}
 	}
 
@@ -439,13 +451,15 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 				} else {
 					try {
 						repaint();
-						Thread.sleep(100);
+						Thread.sleep(50);
 					} catch (InterruptedException e) {
 						System.out.println(e.getMessage());
 					}
 				}
 			}
 			System.out.println("End of game.");
+			isEnded = true;
+			repaint();
 		}
 
 		private boolean toRepaint(robot_data[] robots2, fruit_data[] fruits2) {

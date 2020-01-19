@@ -205,6 +205,8 @@ public class Graph_Algo implements graph_algorithms{
 	public List<node_data> shortestPath(int src, int dest) {
 		node_data source = graph.getNode(src);
 		node_data destanation = graph.getNode(dest);
+		if(source.equals(destanation))
+			return new LinkedList<node_data>();
 		if(source == null || destanation == null) {
 			return null;
 		}
