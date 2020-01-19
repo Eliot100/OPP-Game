@@ -2,9 +2,9 @@ package algorithms;
 
 import java.util.Iterator;
 
-import dataStructure.Fruit;
 import dataStructure.arena_data;
 import dataStructure.edge_data;
+import dataStructure.fruit_data;
 import dataStructure.fruits;
 import dataStructure.node_data;
 import gameClient.game_support;
@@ -21,7 +21,7 @@ public class Arena_Algo {
 		arena.setRobots(gameSupport.getRobots());
 	}
 	
-	public static edge_data getFruitEdge(arena_data arena, Fruit f) {
+	public static edge_data getFruitEdge(arena_data arena, fruit_data f) {
 		for (Iterator<node_data> iterator = arena.getGraph().getV().iterator(); iterator.hasNext();) {
 			node_data node = iterator.next();
 			for (Iterator<edge_data> iterator2 = arena.getGraph().getE(node.getKey()).iterator(); iterator2.hasNext();) {

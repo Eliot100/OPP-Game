@@ -33,6 +33,7 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 	public Point3D pivot;
 	private BufferedImage bi;
 	private Insets Insets;
+	private AutoGame AutoGame;
 	
 	private Color[] Colors = { 
 			Color.GREEN,
@@ -49,6 +50,7 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 	private int nodeRad = 10;
 	private boolean isGameBegin;
 	private boolean firstPaint;
+	private boolean isAuto;
 	private static boolean isRobotSets;
 	private static double minY;
 	private static double minX;
@@ -64,6 +66,10 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 	 * Constructor for GUI_Window with a graph in it.
 	 */
 	public MyGameGUI() {
+		String userAns = JOptionPane.showInputDialog("Enter A for Aotomatic gui, else the window will be manual." );
+		if (userAns.equals("A")) {
+			isAuto = true;
+		}
 		firstPaint = true;
 		init(); 
 		bi = new BufferedImage(1500, 1000, BufferedImage.TYPE_INT_RGB );
@@ -207,13 +213,23 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 		MenuBar menuBar = new MenuBar();
 		this.setMenuBar(menuBar);
 
-		menuBar.add(menu1);
-		String[] gameFunctions = {" init stage ", " set robots ", " start game ", " move robot "};
-		for (int i = 0; i < gameFunctions.length; i++) {
-			MenuItem Item = new MenuItem(gameFunctions[i]);
-			Item.addActionListener(this);
-			menu1.add(Item);
+		menuBar.add(menu1); 
+		if (isAuto) {
+			String[] gameFunctions = {" init stage ", " start game "}; 
+			for (int i = 0; i < gameFunctions.length; i++) {
+				MenuItem Item = new MenuItem(gameFunctions[i]);
+				Item.addActionListener(this);
+				menu1.add(Item);
+			}
+		} else {
+			String[] gameFunctions = {" init stage ", " start game ", " move robot "}; 
+			for (int i = 0; i < gameFunctions.length; i++) {
+				MenuItem Item = new MenuItem(gameFunctions[i]);
+				Item.addActionListener(this);
+				menu1.add(Item);
+			}
 		}
+		
 
 		this.addMouseListener(this);
 		this.setSize(800, 500);
@@ -228,7 +244,6 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 		}
 	}
 	
-
 	private void paintScore(Graphics g) {
 		if (arena != null ) {
 			g.drawString("Score : "+String.format("%.2f", (double) gameSupport.getGrade()), getWidth()/2, 20);
@@ -297,19 +312,20 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 					arena = new Arena(gameSupport.getGraph(), gameSupport.getFruits(), gameSupport.getRobots());
 					RefreshMinMaxFrame();
 					repaint();
+
+					if (isAuto) {
+						AutoGame = new AutoGame(gameSupport, arena);
+						AutoGame.setRobots();
+					} else {
+						SetsRonots SR = new SetsRonots(this);
+						Thread t = new Thread(SR);
+						t.start();
+					}
+					
 				}
 			} catch (Exception e) {
 				JOptionPane.showMessageDialog(null, "You didnt enter an number.");
 			} 
-			break;
-		case " set robots " :
-			if (!isRobotSets) {
-			SetsRonots SR = new SetsRonots(this);
-			Thread t = new Thread(SR);
-			t.start();
-			}
-			else 
-				System.out.println("The robot is alredy set.");
 			break;
 		case " start game " :
 			if (!isGameBegin) {
@@ -319,14 +335,24 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 				Thread t1 = new Thread(RG);
 				t1.start();
 				gameSupport.startGame();
+				if(isAuto)
+					AutoGame.moveRobots();
 			}
 			else 
 				System.out.println("The game was start alredy.");
 			break;
+//		case " stop game " : // Open game to cheats .
+//			if (isGameBegin) { 
+//				gameSupport.stopGame();
+//				isGameBegin = false;
+//			}
+//			break;
 		case " move robot " :
-			moveRobot MR = new moveRobot(this);
-			Thread t2 = new Thread(MR);
-			t2.start();
+			if (gameSupport.isRunning()) {
+				moveRobot MR = new moveRobot(this);
+				Thread t2 = new Thread(MR);
+				t2.start();
+			}
 			break;
 		}
 		
@@ -353,7 +379,6 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 			GameGUI.gameSupport.RobotNextNode(theRobot.getId(), target.getKey());
 			GameGUI.gameSupport.moveRobots();
 		}
-		
 
 		private robot_data setRobot() {
 			robot_data[] robots = arena.getRobots();
@@ -403,14 +428,15 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 					arena.setRobots(GameGUI.gameSupport.getRobots());
 					GameGUI.repaint();
 					try {
+						GameGUI.repaint();
 						Thread.sleep(50);
 					} catch (InterruptedException e) {
 						System.out.println(e.getMessage());
 					}
 				} else {
 					try {
+						repaint();
 						Thread.sleep(100);
-						GameGUI.repaint();
 					} catch (InterruptedException e) {
 						System.out.println(e.getMessage());
 					}
@@ -479,7 +505,7 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 		
 		@Override
 		public void run() {
-			System.out.println(GameGUI.getSupport().robotsSize());
+			System.out.println("Place "+GameGUI.getSupport().robotsSize()+" robots");
 			Point3D tempPivot = null;
 			GameGUI.newPivot = false;
 			for (int i = 0; i < GameGUI.getSupport().robotsSize(); i++) {

@@ -129,14 +129,5 @@ public class SimpleGameClient {
 		return ans;
 	}
 	
-//	public Fruit[] getFruits() {
-//		return null;
-////		return game.getFruits();
-//	}
-//	
-//	public Robot[] getRobots() {
-//		return null;
-////		return game.getFruits();
-//	}
 
 }
