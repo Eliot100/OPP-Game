@@ -1,5 +1,6 @@
 package algorithms;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import dataStructure.arena_data;
@@ -22,22 +23,32 @@ public class Arena_Algo {
 	}
 	
 	public static edge_data getFruitEdge(arena_data arena, fruit_data f) {
-		for (Iterator<node_data> iterator = arena.getGraph().getV().iterator(); iterator.hasNext();) {
-			node_data node = iterator.next();
-			for (Iterator<edge_data> iterator2 = arena.getGraph().getE(node.getKey()).iterator(); iterator2.hasNext();) {
-				edge_data edge = iterator2.next();
-				if ( eps > Math.abs( node.getLocation().distance3D(arena.getGraph().getNode(edge.getDest()).getLocation()) - 
-					(node.getLocation().distance3D(f.getPos()) + f.getPos().distance3D(arena.getGraph().getNode(edge.getDest()).getLocation())))){
-					
-					if (f.getType() == fruits.banana && edge.getSrc() > edge.getDest()) {
-						return edge;
-					} else if (f.getType() == fruits.apple && edge.getSrc() < edge.getDest()) {
-						return edge;
+		ArrayList<edge_data> TheEdge = new ArrayList<edge_data>();
+		edge_data fruitEdge = null;
+		try { 
+			for (Iterator<node_data> iterator = arena.getGraph().getV().iterator(); iterator.hasNext();) {
+				node_data node = iterator.next();
+				for (Iterator<edge_data> iterator2 = arena.getGraph().getE(node.getKey()).iterator(); iterator2.hasNext();) {
+					edge_data edge = iterator2.next();
+					if ( eps >= Math.abs( node.getLocation().distance2D(arena.getGraph().getNode(edge.getDest()).getLocation()) - 
+							(node.getLocation().distance2D(f.getPos()) + f.getPos().distance2D(arena.getGraph().getNode(edge.getDest()).getLocation())))){
+
+						if (f.getType() == fruits.banana && edge.getSrc() > edge.getDest()) {
+							TheEdge.add(edge);
+						} else if (f.getType() == fruits.apple && edge.getSrc() < edge.getDest()) {
+							TheEdge.add(edge);
+						}
 					}
 				}
 			}
+		} catch (Exception e) {
+			return null;
 		}
-		return null;
+		int r = (int)(1+(Math.random()*(TheEdge.size()-1)));
+		Iterator<edge_data> itr = TheEdge.iterator();
+		for(int i=0; i<r ;i++) 
+			fruitEdge = itr.next();
+		return fruitEdge;
 	}
 	
 }

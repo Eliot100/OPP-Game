@@ -9,5 +9,6 @@
 	<classpathentry kind="lib" path="lib/java-json.jar"/>
 	<classpathentry kind="lib" path="lib/GameServer_v0.27.jar"/>
 	<classpathentry kind="lib" path="C:/Users/user/Desktop/קורסים/שנה ב/סמסטר א/מונחה עצמים/תרגול/JSON/gson-2.8.6.jar"/>
+	<classpathentry kind="lib" path="C:/Users/user/Desktop/קורסים/שנה ב/סמסטר א/מונחה עצמים/JavaAPIforKml-2.2.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

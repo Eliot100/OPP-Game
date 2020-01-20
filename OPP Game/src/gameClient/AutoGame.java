@@ -66,12 +66,37 @@ public class AutoGame {
 		Support.RobotNextNode(robot.getId(), dest);
 	}
 	
-	private void move2ClosestFruit(robot_data robot) {
+	private void moveSimultan() {
+		double[][] matrix = new double[Support.robotsSize()][Support.fruitsSize()]; 
+		for (int i = 0; i < matrix.length; i++) {
+			for (int j = 0; j < matrix[0].length; j++) {
+				double dist = Arena_Algo.getFruitEdge(arena, Support.getFruits()[j]).getWeight() 
+						+ ga.shortestPathDist(Support.getRobots()[i].getSrc(), Arena_Algo.getFruitEdge(arena, Support.getFruits()[j]).getSrc());
+				matrix[i][j] = dist;
+			}
+		}
+		
+		boolean[] flags = new boolean[Support.fruitsSize()];
+		robot_data[] robots = Support.getRobots();
+		for (robot_data robot : robots) {
+			if(robot.getDest() == -1)
+				move2ClosestFruit(robot, flags);
+		}
+	}
+	
+	private void move2ClosestFruit(robot_data robot, boolean[] flags) {
 		int dest = -1;
 		fruit_data[] fruits = Support.getFruits();
 		double dist = 0;
+		int fruitPlace = 0;
+		boolean first = true;
 		for (int i = 0; i < fruits.length; i++) {
-			if (i == 0) {
+			if (flags[i]) {
+				continue;
+			}
+			if (first) {
+				first = false;
+				fruitPlace = i;
 				if (robot.getSrc() == Arena_Algo.getFruitEdge(arena, fruits[i]).getSrc()) {
 					dest = Arena_Algo.getFruitEdge(arena, fruits[i]).getDest();
 					dist = Arena_Algo.getFruitEdge(arena, fruits[i]).getWeight();
@@ -93,6 +118,7 @@ public class AutoGame {
 				double tempDist = Arena_Algo.getFruitEdge(arena, fruits[i]).getWeight() 
 									+ ga.shortestPathDist(robot.getSrc(), Arena_Algo.getFruitEdge(arena, fruits[i]).getSrc());
 				if(tempDist < dist) {
+					fruitPlace = i;
 					if (robot.getSrc() == Arena_Algo.getFruitEdge(arena, fruits[i]).getSrc()) {
 						dest = Arena_Algo.getFruitEdge(arena, fruits[i]).getDest();
 						dist = tempDist;
@@ -112,6 +138,7 @@ public class AutoGame {
 			}
 		}
 		Support.RobotNextNode(robot.getId(), dest);
+		flags[fruitPlace] = true;
 	}
 
 	private class randomWalk implements Runnable {
@@ -133,16 +160,21 @@ public class AutoGame {
 		}
 
 	}
+	
 	private class move2ClosestFruit implements Runnable {
 
 		@Override
 		public void run() {
 			while(Support.isRunning()) {
+				boolean[] flags = new boolean[Support.fruitsSize()];
 				robot_data[] robots = Support.getRobots();
 				for (robot_data robot : robots) {
-					if(robot.getDest() == -1);
-						move2ClosestFruit(robot);
+					move2ClosestFruit(robot, flags);
 				}
+//				for (robot_data robot : robots) {
+//					if(robot.getDest() == -1);
+//						randomWalk(robot);
+//				}
 				try {
 					Thread.sleep(50);
 				} catch (InterruptedException e) {

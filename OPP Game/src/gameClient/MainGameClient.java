@@ -128,7 +128,11 @@ public class MainGameClient implements game_support {
 
 	@Override
 	public boolean isRunning() {
-		return game.isRunning();
+		try {
+			return game.isRunning();
+		} catch (Exception e) {
+			return false;
+		}
 	}
 
 	@Override

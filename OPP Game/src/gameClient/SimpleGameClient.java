@@ -68,7 +68,7 @@ public class SimpleGameClient {
 				line = new JSONObject(st);
 				JSONObject JsonRobot = line.getJSONObject("Robot");
 				Robot r = new Robot(JsonRobot);
-				
+				System.out.println(r.getPos());
 			}
 		}
 		catch (JSONException e) {e.printStackTrace();}
