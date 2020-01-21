@@ -80,7 +80,7 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 		new MyGameGUI();
 	}
 	/**
-	 * Constructor of MyGameGUI.
+	 * Constructor of MyGameGUI 
 	 * @throws IOException 
 	 */
 	public MyGameGUI() throws IOException {
