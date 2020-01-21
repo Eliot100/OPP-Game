@@ -97,19 +97,19 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 	 */
 	public void paint(Graphics g)  {
 		if (!firstPaint) {
-		Graphics g1 = null;
-		g1 = bi.getGraphics();
-		g1.setColor(Color.white);
-		g1.fillRect(0, 0, this.getWidth(), this.getHeight());
-		
-		if (arena != null ) {
-			paintDGraph(g1);
-			paintFruit(g1);
-			paintRobot(g1);
-			paintTime(g1);
-			paintScore(g1);
-		}
-		g.drawImage(bi, Insets.left, Insets.top, this);
+			Graphics g1 = null;
+			g1 = bi.getGraphics();
+			g1.setColor(Color.white);
+			g1.fillRect(0, 0, this.getWidth(), this.getHeight());
+
+			if (arena != null ) {
+				paintDGraph(g1);
+				paintFruit(g1);
+				paintRobot(g1);
+				paintTime(g1);
+				paintScore(g1);
+			}
+			g.drawImage(bi, Insets.left, Insets.top, this);
 		} else firstPaint = false;
 	}
 
