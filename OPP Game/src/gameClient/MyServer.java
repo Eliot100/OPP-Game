@@ -18,7 +18,6 @@ import dataStructure.Robot;
 import dataStructure.fruit_data;
 import dataStructure.microDGraph;
 import dataStructure.robot_data;
-import utils.Point3D;
 
 public class MyServer implements game_server {
 	private game_service game;
@@ -125,9 +124,7 @@ public class MyServer implements game_server {
 		}
 		microDGraph collections = gson.fromJson(st0, microDGraph.class);
 		for (microDGraph.microNode node : collections.getNodes()) {
-			String[] xyz = node.getPos().split(",");
-			Point3D p = new Point3D(Double.parseDouble(xyz[0]), Double.parseDouble(xyz[1]));
-			graph.addNode( new Node(node.getId(), p));
+			graph.addNode( new Node(node.getId(), node.getPos()));
 		}
 		for (microDGraph.microEdge edge : collections.getEdges()) {
 			graph.connect(edge.getSrc(), edge.getDest(), edge.getW());

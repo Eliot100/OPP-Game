@@ -9,19 +9,33 @@ import dataStructure.fruit_data;
 import dataStructure.FruitsType;
 import dataStructure.node_data;
 import gameClient.game_server;
-
+/**
+ * This class is the algorithms you can do on the arena_data of the game. 
+ * @author Eli Ruvinov
+ */
 public class Arena_Algo {
-	
 	private static final double eps = 0.00001;
-
-	public static void setGameFruits(arena_data arena, game_server gameSupport) {
-		arena.setFruits( gameSupport.getFruits());
+	/**
+	 * set arenas fruits from server
+	 * @param arena
+	 * @param server
+	 */
+	public static void setGameFruits(arena_data arena, game_server server) {
+		arena.setFruits( server.getFruits());
 	}
-	
-	public static void setGameRobots(arena_data arena, game_server gameSupport) {
-		arena.setRobots(gameSupport.getRobots());
+	/**
+	 * set arenas robots from server
+	 * @param arena
+	 * @param server
+	 */
+	public static void setGameRobots(arena_data arena, game_server server) {
+		arena.setRobots(server.getRobots());
 	}
-	
+	/**
+	 * @param arena - arena_data
+	 * @param f - fruit_data
+	 * @return the edge_data which f is on
+	 */
 	public static edge_data getFruitEdge(arena_data arena, fruit_data f) {
 		ArrayList<edge_data> TheEdge = new ArrayList<edge_data>();
 		edge_data fruitEdge = null;
@@ -52,56 +66,3 @@ public class Arena_Algo {
 	}
 	
 }
-///**
-// * This function is change the Arena fruits to be new fruit_data 
-// * array that contains all the fruits from the game.
-// * @param gameSupport - the game_support which the game plays throw.
-// */
-//@Override
-//public void setFruits(game_support gameSupport) {
-//	fruit_data[] fruits = new fruit_data[gameSupport.fruitsSize()]; 
-//	Iterator<String> f_iter = gameSupport.getGameService().getFruits().iterator();
-//	for(int i = 0; f_iter.hasNext(); i++) {
-//		JSONObject jsonrobot;
-//		try {
-//			jsonrobot = (new JSONObject(f_iter.next())).getJSONObject("Fruit");
-//			fruits[i] = new Fruit(jsonrobot);
-//		} catch (JSONException e) {
-//			e.printStackTrace();
-//		}
-//	}
-//	this.fruits = fruits;
-//}
-///**
-// * This function is change the Arena robots to be new robot_data 
-// * array that contains all the robots from the game.
-// * @param gameSupport - the game_support which the game plays throw.
-// */
-//@Override
-//public void setRobots(game_support gameSupport) {
-//	robot_data[] robots = new robot_data[gameSupport.robotsSize()];
-//	Iterator<String> r_iter = gameSupport.getGameService().getRobots().iterator();
-//	for(int i = 0; r_iter.hasNext(); i++) {
-//		JSONObject jsonrobot;
-//		try {
-//			jsonrobot = (new JSONObject(r_iter.next())).getJSONObject("Robot");
-//			this.robots[i] = new Robot(jsonrobot);
-//		} catch (JSONException e) {
-//			e.printStackTrace();
-//		}
-//	}
-//	this.robots = robots;
-//}
-
-
-
-///**
-// * This function is change the arena_data robots to be new robot_data array.
-// * @param gameSupport - the game_support which the game plays throw.
-// */
-//public void setRobots(game_support gameSupport) ;
-///**
-// * This function is change the arena_data fruits to be new fruit_data array.
-// * @param gameSupport - the game_support which the game plays throw.
-// */
-//public void setFruits(game_support gameSupport) ;

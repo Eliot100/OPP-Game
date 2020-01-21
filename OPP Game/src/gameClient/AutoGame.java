@@ -15,30 +15,32 @@ public class AutoGame {
 	private game_server server;
 	private Arena arena;
 	private Graph_Algo ga;
-
-	public AutoGame(game_server support, Arena arena) {
-		this.server = support;
+	/**
+	 * Constructor of AutoGame
+	 * @param server - the game_server of the AutoGame
+	 * @param arena - the Arena of the AutoGame
+	 */
+	public AutoGame(game_server server, Arena arena) {
+		this.server = server;
 		this.arena = arena;
 		ga = new Graph_Algo(this.arena.getGraph());
 	}
-
+	/**
+	 * Place all the robots on the arena
+	 */
 	public void setRobots() {
 		int robotsNum = server.robotsSize();
 		int fruitsNum = server.fruitsSize();
 		fruit_data[] fruits = server.getFruits();
-
 		if (robotsNum <= fruitsNum) {
-			for (int i = 0; i < robotsNum; i++) {
+			for (int i = 0; i < robotsNum; i++) 
 				server.placeRobot(Arena_Algo.getFruitEdge(arena, fruits[i]).getSrc());
-			}
 		}
 		else {
-			for (int i = 0; i < fruitsNum; i++) {
+			for (int i = 0; i < fruitsNum; i++) 
 				server.placeRobot(Arena_Algo.getFruitEdge(arena, fruits[i]).getSrc());
-			}
-			for (int i = 0; i < robotsNum-fruitsNum; i++) {
+			for (int i = 0; i < robotsNum-fruitsNum; i++) 
 				server.placeRobot(randomPlace(arena.getGraph()));
-			}
 		}
 	}
 
@@ -50,7 +52,9 @@ public class AutoGame {
 			ans = itr.next().getKey();
 		return ans;
 	}
-
+	/**
+	 * Moving the robots
+	 */
 	public void moveRobots() {
 		Thread t = new Thread(new move2ClosestFruit());
 		t.start();
