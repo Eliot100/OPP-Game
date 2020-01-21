@@ -5,5 +5,5 @@ This project includs a simpol GUI object.
 You welcome to use this project as you plase.
 
 For download :
-Click "Clone or download" -> Download zip
-that it ;)
+Click "Clone or download" -> Download zip.
+That it.
