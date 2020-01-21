@@ -15,71 +15,70 @@ public class KML_Logger implements Runnable {
 
 	private String fileName;
 	private game_support support;
-	private static String data;
+	private String date;
 	private File OutputFile;
-	private String XMLcontent;
+	private String content;
 	
 	//header file is the opening of the file required for every kml file
 	private static final String headerFile = 
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + 
-			"<kml xmlns=\"http://earth.google.com/kml/2.2\">\r\n" + 
-			"  <Document>\r\n" + 
-			"    <name>Matala 3</name>\n" +
-			"<Style id=\"check-hide-children\">" + 
-			"      <ListStyle>\r\n" + 
-			"        <listItemType>checkHideChildren</listItemType>\r\n" + 
-			"      </ListStyle>\r\n" + 
-			"    </Style>\r\n" + 
-			"\r\n" + 
-			"    <styleUrl>#check-hide-children</styleUrl>";
+			"  <kml xmlns=\"http://earth.google.com/kml/2.2\">\r\n" + 
+			"    <Document>\r\n" + 
+			"      <name> OPP Game </name>\n" +
+			"      <Style id=\"check-hide-children\">" + 
+			"        <ListStyle>\r\n" + 
+			"          <listItemType>checkHideChildren</listItemType>\r\n" + 
+			"        </ListStyle>\r\n" + 
+			"      </Style>\r\n" + 
+			"      <styleUrl>#check-hide-children</styleUrl>";
 	
 	//footer file is the ending of the file required for every kml file
 	private static final String footerFile = "</Document>\r\n" + "</kml>";
 	
 	// kml string representing an apple object
 	private static final String appleStyle = 
-			" <Style id=\"apple\">\r\n" + 
-			"     <IconStyle>\r\n" + 
-			"    <scale>1.0</scale>\r\n" + 
-			"       <Icon>\r\n" + 
-			"         <href>http://maps.google.com/mapfiles/kml/paddle/grn-blank.png</href>\r\n" + 
-			"       </Icon>\r\n" + 
-			"     </IconStyle>\r\n" + 
-			"   </Style>\n";
+			"      <Style id=\"apple\">\r\n" + 
+			"        <IconStyle>\r\n" + 
+			"          <scale>1.0</scale>\r\n" + 
+			"          <Icon>\r\n" + 
+			"            <href>http://maps.google.com/mapfiles/kml/paddle/grn-blank.png</href>\r\n" + 
+			"          </Icon>\r\n" + 
+			"        </IconStyle>\r\n" + 
+			"      </Style>\n";
 	
 	// kml string representing a banana object
 	private static final String bananaStyle = 
-			"<Style id=\"banana\">\r\n" + 
-			"  <IconStyle>\r\n" + 
-			"    <scale>1.0</scale>\r\n" + 
-			"    <Icon>\r\n" + 
-			"      <href>http://maps.google.com/mapfiles/kml/paddle/ylw-blank.png</href>\r\n" + 
-			"    </Icon>\r\n" + 
-			"  </IconStyle>\r\n" + 
-			"</Style>\n";
+			"      <Style id=\"banana\">\r\n" + 
+			"        <IconStyle>\r\n" + 
+			"          <scale>1.0</scale>\r\n" + 
+			"          <Icon>\r\n" + 
+			"            <href>http://maps.google.com/mapfiles/kml/paddle/ylw-blank.png</href>\r\n" + 
+			"          </Icon>\r\n" + 
+			"        </IconStyle>\r\n" + 
+			"      </Style>\n";
 	
 	// kml string representing a robot object
 	private static final String robotStyle = 
-			"<Style id=\"robot\">\r\n" + 
-			"  <IconStyle>\r\n" + 
-			"    <scale>1.0</scale>\r\n" + 
-			"    <Icon>\r\n" + 
-			"      <href>http://maps.google.com/mapfiles/kml/pal4/icon54.png</href>\r\n" + 
-			"    </Icon>\r\n" + 
-			"  </IconStyle>\r\n" + 
-			"</Style>\n";
+			"      <Style id=\"robot\">\r\n" + 
+			"        <IconStyle>\r\n" + 
+			"          <scale>1.0</scale>\r\n" + 
+			"          <Icon>\r\n" + 
+			"            <href>http://maps.google.com/mapfiles/kml/pal4/icon54.png</href>\r\n" + 
+			"          </Icon>\r\n" + 
+			"        </IconStyle>\r\n" + 
+			"      </Style>\n";
 
 	// kml string representing a place mark and a time stamp 
 	private static final String placeMark = 
-			" <Placemark>\r\n" + 
-			"   <TimeStamp>\r\n" + 
-			"     <when>date</when>\r\n" + 
-			"   </TimeStamp>" +
-			"   <styleUrl>#icon</styleUrl>\r\n" + 
-			"   <Point>\r\n" + 
-			"      <coordinates>(x,y)</coordinates>\r\n" + 
-			"   </Point>\r\n" + 
-			" </Placemark>\n";
+			"      <Placemark>\r\n" + 
+			"        <TimeStamp>\r\n" + 
+			"          <when>date</when>\r\n" + 
+			"        </TimeStamp>" +
+			"        <styleUrl>#icon</styleUrl>\r\n" + 
+			"        <Point>\r\n" + 
+			"          <coordinates>(x,y)</coordinates>\r\n" + 
+			"        </Point>\r\n" + 
+			"      </Placemark>\n";
 
 	/****************************************************************************************************************/
 	// function implementation : 
@@ -92,20 +91,20 @@ public class KML_Logger implements Runnable {
 	 */
 	public KML_Logger(game_support support , int stage ) throws IOException {
 		this.support = support;
-		this.fileName = "data/" + stage + ".kml";
-		OutputFile = new File("data/" + stage + ".kml");
+		fileName = "data/" + stage + ".kml";
+		OutputFile = new File(fileName);
 		OutputFile.createNewFile();
-		XMLcontent = headerFile + appleStyle + bananaStyle + robotStyle;
-		writeToFile(XMLcontent); 
+		content = headerFile + appleStyle + bananaStyle + robotStyle;
+		writeToFile(content); 
 	}
 
 	/**
 	 * this method updates the data to the current date in a kml format
 	 */
-	private static void getKmlFormatDate() {
+	private void getKmlFormatDate() {
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 		Date date = new Date();  
-		data = formatter.format(date);
+		this.date = formatter.format(date);
 	}
 	/**
 	 * Writes the log of the game in a KML format to a file 
@@ -127,28 +126,28 @@ public class KML_Logger implements Runnable {
 	private String addPlaceMark(Point3D p , String icon) {
 		String placeMark = KML_Logger.placeMark;
 		placeMark = placeMark.replace("(x,y)",p.x()+","+p.y());
-		placeMark = placeMark.replace("date", data); //replace date to the current data kml format
+		placeMark = placeMark.replace("date", date); //replace date to the current data kml format
 		placeMark = placeMark.replace("icon", icon); //replace the word "icon" to specific icon match the current object
 		return placeMark;
 	}
 	/**
-	 * 10 times in a second this class takes a screenshot of the game converts it to a kml format and adds it the the logger
+	 * 
+	 * and at the end write all to file.
 	 */
 	@Override
 	public void run() {
 		while(support.isRunning()) {
 			try {
-				XMLcontent += screenShot();
-				writeToFile(XMLcontent);
+				content += screenShot();
+				writeToFile(content);
 				Thread.sleep(50);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			
 		}
-		XMLcontent += footerFile;
+		content += footerFile;
 		try {
-			writeToFile(XMLcontent);
+			writeToFile(content);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -158,7 +157,7 @@ public class KML_Logger implements Runnable {
 	 */
 	private String screenShot() {
 		String PlaceMark = "";
-		KML_Logger.getKmlFormatDate(); //update current date
+		getKmlFormatDate(); //update current date
 		//fruits
 		fruit_data[] fruitsArr = support.getFruits();
 		for (fruit_data fruit : fruitsArr) {
@@ -175,32 +174,4 @@ public class KML_Logger implements Runnable {
 		}
 		return PlaceMark;
 	}
-
-	//  my first implementation :
-	//
-	//	private final String robotIcon = "robotIcon";
-	//	private final String fruitIcon = "fruitIcon";
-	//
-	//	// use example
-	//	public static void main(String[] args)  {
-	//
-	//	}
-	//
-	//	public void AddRobotsPlaceMark(String str, robot_data[] robots) {
-	//		for (robot_data robot : robots) {
-	//			PlaceMark(robotIcon, robot.getPos());
-	//		}
-	//	}
-	//
-	//	public void AddFruitsPlaceMark(String str, fruit_data[] fruits) {
-	//		for (fruit_data fruit : fruits) {
-	//			str += PlaceMark(fruitIcon, fruit.getPos());
-	//		}
-	//	}
-	//
-	//	private String PlaceMark(String icon, Point3D location) {
-	//		return icon;
-	//	}
-
-
 }
