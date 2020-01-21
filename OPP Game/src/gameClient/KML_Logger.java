@@ -32,10 +32,6 @@ public class KML_Logger implements Runnable {
 	 */
 	private game_server server;
 	/**
-	 * The stage of the game
-	 */
-	private int gameStage;
-	/**
 	 * String of the date + time
 	 */
 	private String date;
