@@ -8,29 +8,28 @@ import dataStructure.edge_data;
 import dataStructure.fruit_data;
 import dataStructure.FruitsType;
 import dataStructure.node_data;
-import gameClient.game_server;
 /**
  * This class is the algorithms you can do on the arena_data of the game. 
  * @author Eli Ruvinov
  */
 public class Arena_Algo {
 	private static final double eps = 0.00001;
-	/**
-	 * set arenas fruits from server
-	 * @param arena
-	 * @param server
-	 */
-	public static void setGameFruits(arena_data arena, game_server server) {
-		arena.setFruits( server.getFruits());
-	}
-	/**
-	 * set arenas robots from server
-	 * @param arena
-	 * @param server
-	 */
-	public static void setGameRobots(arena_data arena, game_server server) {
-		arena.setRobots(server.getRobots());
-	}
+//	/**
+//	 * set arenas fruits from server
+//	 * @param arena
+//	 * @param server
+//	 */
+//	public static void setGameFruits(arena_data arena, game_server server) {
+//		arena.setFruits( server.getFruits());
+//	}
+//	/**
+//	 * set arenas robots from server
+//	 * @param arena
+//	 * @param server
+//	 */
+//	public static void setGameRobots(arena_data arena, game_server server) {
+//		arena.setRobots(server.getRobots());
+//	}
 	/**
 	 * @param arena - arena_data
 	 * @param f - fruit_data
