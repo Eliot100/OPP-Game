@@ -32,9 +32,9 @@ public class KML_Logger implements Runnable {
 	 */
 	private game_server server;
 	/**
-	 * the stage of the game
+	 * The stage of the game
 	 */
-	private int stage;
+	private int gameStage;
 	/**
 	 * String of the date + time
 	 */
@@ -46,7 +46,7 @@ public class KML_Logger implements Runnable {
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + 
 			"<kml xmlns=\"http://earth.google.com/kml/2.2\">\r\n" + 
 			"  <Document>\r\n" + 
-			"    <name> OPP Game stage "+stage+" </name>\r\n" +
+			"    <name> OPP Game stage theStage </name>\r\n" +
 			"    <Style id=\"check-hide-children\">\r\n" + 
 			"      <ListStyle>\r\n" + 
 			"        <listItemType>checkHideChildren</listItemType>\r\n" + 
@@ -117,12 +117,12 @@ public class KML_Logger implements Runnable {
 	 */
 	public KML_Logger(game_server support , int stage ) throws IOException {
 		server = support;
-		this.stage = stage;
 		fileName = "data/" + stage + ".kml";
+		String finishHeader = header.replace("theStage", ""+stage);
 		OutputFile = new File(fileName);
 		OutputFile.createNewFile();
-		content = header + appleIcon + bananaIcon + robotIcon;
-		writeToFile(content); 
+		content = finishHeader + appleIcon + bananaIcon + robotIcon;
+		System.out.println(gameStage);
 	}
 	@Override
 	/**

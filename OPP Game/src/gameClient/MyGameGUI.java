@@ -28,54 +28,62 @@ import dataStructure.FruitsType;
 import dataStructure.node_data;
 import dataStructure.robot_data;
 import utils.Point3D;
-
+/**
+ * This class is a window a game. 
+ * @author Eli Ruvinov
+ */
 public class MyGameGUI extends JFrame implements ActionListener, MouseListener, MouseMotionListener {
 	private static final long serialVersionUID = 1;
 	private game_server server;
 	private Arena arena;
-	public Point3D pivot;
-	private BufferedImage bi;
-	private BufferedImage RobotImage;
 	private Insets Insets;
+	private BufferedImage bi;
+	private final BufferedImage AppleImage = ImageIO.read(new File("apple.jpg"));
+	private final BufferedImage BananaImage = ImageIO.read(new File("banana.jpg"));;
+	private final BufferedImage RobotImage = ImageIO.read(new File("evea.jpg"));
+	private KML_Logger KML_Logger;
 	private AutoGame AutoGame;
-
+	/**
+	 * The last point that Clicked on this MyGameGUI object.
+	 */
+	public Point3D pivot;
 	private static final Color edgeColor = new Color(80, 80, 80);
 	private static final Color edgeTextColor = new Color(50, 50, 200);
 	private static final int YUPborder = 35;
 	private static final int border = 45;
-	private int nodeRad = 10;
+	private static final int nodeRad = 10;
+	private static int gameStage; 
 	private boolean newPivot;
 	private boolean isGameBegin;
 	private boolean firstPaint;
 	private boolean isAuto;
 	private boolean isEnded;
 	private boolean isRobotSets;
-	private int stage;
-	private KML_Logger KML_Logger;
 	private boolean isLogger;
-	private BufferedImage AppleImage;
-	private BufferedImage BananaImage;
 	private static double minY;
 	private static double minX;
 	private static double maxY;
 	private static double maxX;
 	/**
-	 * this is an example how to make the GUI_Window object.
+	 * The main
+	 * @param args
+	 * @throws IOException
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
+		GUI();
+	}
+	/**
+	 * This is an example how to make the MyGameGUI object.
+	 * @throws IOException 
+	 */
+	public static void GUI() throws IOException {
 		new MyGameGUI();
 	}
 	/**
-	 * Constructor for GUI_Window with a graph in it.
+	 * Constructor for MyGameGUI with a graph in it.
+	 * @throws IOException 
 	 */
-	public MyGameGUI() {
-		try {
-			RobotImage = ImageIO.read(new File("evea.jpg"));
-			AppleImage = ImageIO.read(new File("apple.jpg"));
-			BananaImage = ImageIO.read(new File("banana.jpg"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	public MyGameGUI() throws IOException {
 		String userAns = JOptionPane.showInputDialog("Enter 'A' for Aotomatic gui, else the window will be manual." );
 		if (userAns.equals("A")) {
 			isAuto = true;
@@ -91,7 +99,6 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 	public game_server getSupport() {
 		return server;
 	}
-	
 	/**
 	 * This is the function that paint the GUI frame. 
 	 */
@@ -112,7 +119,9 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 			g.drawImage(bi, Insets.left, Insets.top, this);
 		} else firstPaint = false;
 	}
-
+	/**
+	 * This is the function that paint the DGraph. 
+	 */
 	private void paintDGraph(Graphics g) {
 		for ( Iterator<node_data> iterator = arena.getGraph().getV().iterator() ; iterator.hasNext();) {
 			node_data node = iterator.next();
@@ -127,7 +136,9 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 			drowNode(node, g);
 		}
 	}
-	
+	/**
+	 * This function is refresh the frame minimum maximum values. 
+	 */
 	private void RefreshMinMaxFrame() {
 		boolean b = true;
 		if (arena != null && arena.getGraph().nodeSize() != 0 ) {
@@ -155,24 +166,40 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 			}
 		}
 	}
+	/**
+	 * This function is scale a given y and return the y value of the pixel in the given y. 
+	 * @return the y value of the pixel
+	 */
 	private int ScaleY(double y) {
 		return upsideDownY((int) scale(y, minY, maxY, YUPborder+border , this.getHeight()-border ));
 	}
-
+	/**
+	 * This function is fliping a given y value. 
+	 * @param y - the given y
+	 * @return the flip given y
+	 */
 	private int upsideDownY(int y) {
 		int midY = (int) ((this.getHeight())/2);
 		return (int) ((y - midY)*(-1)+midY);
 	}
-
+	/**
+	 * This function is scale a given x and return the x value of the pixel in the given x. 
+	 * @param x - the given x
+	 * @return the x value of the pixel
+	 */
 	private int ScaleX(double x) {
 		return (int) scale(x, minX, maxX, border, this.getWidth()-border );
 	}
-
+	/**
+	 * This function is scale a given point to point on the MyGameGUI object frame.
+	 * @param location - the given point
+	 * @return point on the MyGameGUI object frame
+	 */
 	private Point3D ScaledLoc(Point3D location) {
 		return new Point3D(ScaleX(location.x()), ScaleY(location.y()));
 	}
 	/**
-	 * 
+	 * This function is scale data from range.
 	 * @param data denote some data to be scaled
 	 * @param r_min the minimum of the range of your data
 	 * @param r_max the maximum of the range of your data
@@ -184,7 +211,11 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 		double res = ((data - r_min) / (r_max-r_min)) * (t_max - t_min) + t_min;
 		return res;
 	}
-
+	/**
+	 * This is the function that paint an edge on graphics object. 
+	 * @param edge - the painted edge_data
+	 * @param g - the graphics object;
+	 */
 	private void drowEdge(edge_data edge, Graphics g) {
 		Point3D sorce = arena.getGraph().getNode(edge.getSrc()).getLocation();
 		Point3D dest = arena.getGraph().getNode(edge.getDest()).getLocation();
@@ -197,14 +228,18 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 		Point3D TextPoint = edgeTextPoint( sorce, dest);
 		g.drawString(String.format("%.2f", edge.getWeight()), ScaleX(TextPoint.x()), ScaleY(TextPoint.y()));
 	}
-	
+	/**
+	 * This is the function that paint an node on graphics object. 
+	 * @param node - the painted node_data
+	 * @param g - the graphics object;
+	 */
 	private void drowNode(node_data node, Graphics g) {
 		g.setColor(Color.BLUE);
 		g.fillOval(ScaleX(node.getLocation().x())-(int)(nodeRad/2), ScaleY(node.getLocation().y())-(int)(nodeRad/2), (int)nodeRad, (int)nodeRad);
 		g.setColor(Color.BLUE);
 		g.drawString(""+node.getKey(), ScaleX(node.getLocation().x())-2, ScaleY( node.getLocation().y())-9);
 	}
-
+	
 	private Point3D edgeDirectionPoint(Point3D srcPoint, Point3D destPoint) {
 		return new Point3D((srcPoint.x()+7*destPoint.x())/8, (srcPoint.y()+7*destPoint.y())/8);
 	}
@@ -219,7 +254,6 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 		this.setBackground(Color.WHITE);
 		this.setTitle(" GUI ");
 
-		//
 		Menu menu1 = new Menu(" Game Options ");
 		MenuBar menuBar = new MenuBar();
 		this.setMenuBar(menuBar);
@@ -264,13 +298,10 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 	private void paintFruit(Graphics g) {
 		for (int i = 0; i < arena.getFruits().length; i++) {
 			if (arena.getFruits()[i].getType() == FruitsType.apple) {
-//				g.setColor(Color.green);
 				g.drawImage(AppleImage, ScaleX(arena.getFruits()[i].getPos().x())-15, ScaleY(arena.getFruits()[i].getPos().y())-15, 30, 30, null);
 			} else if (arena.getFruits()[i].getType() == FruitsType.banana) {
-//				g.setColor(Color.yellow);
 				g.drawImage(BananaImage, ScaleX(arena.getFruits()[i].getPos().x())-10, ScaleY(arena.getFruits()[i].getPos().y())-15, 20, 30, null);
 			}
-//			g.fillOval(ScaleX(arena.getFruits()[i].getPos().x())-8, ScaleY(arena.getFruits()[i].getPos().y())-8, 16, 16);
 			
 		}
 	}
@@ -281,107 +312,129 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 				g.drawImage(RobotImage,ScaleX(arena.getRobots()[i].getPos().x())-10, ScaleY(arena.getRobots()[i].getPos().y())-15, 20, 30, null);
 			}
 	}
-
 	@Override
+	/**
+	 * Sets a new pivot Point.
+	 */
 	public void mouseClicked(MouseEvent arg0) {
 		int x0 = arg0.getX();
 		int y0 = arg0.getY();
 		pivot = new Point3D(x0, y0-YUPborder);
 		newPivot = true;
 	}
-	
 	@Override
+	/**
+	 * Do noting
+	 */
 	public void mouseDragged(MouseEvent e) {}
-
 	@Override
+	/**
+	 * Do noting
+	 */
 	public void mouseMoved(MouseEvent e) {}
-	
 	@Override
+	/**
+	 * Do noting
+	 */
 	public void mouseEntered(MouseEvent arg0) {}
-
 	@Override
+	/**
+	 * Do noting
+	 */
 	public void mouseExited(MouseEvent arg0) {}
-
 	@Override
+	/**
+	 * Do noting
+	 */
 	public void mousePressed(MouseEvent arg0) {}
-
 	@Override
+	/**
+	 * Do noting
+	 */
 	public void mouseReleased(MouseEvent arg0) {}
-
 	@Override
+	/**
+	 * Linking between the ActionEvent and the suitable action
+	 */
 	public void actionPerformed(ActionEvent arg0) {
 		switch (arg0.getActionCommand()) {
 		case " init stage " :
-			String userAns = JOptionPane.showInputDialog("Enter the stage you want to play." );
-			isRobotSets = false;
-			isGameBegin = false;
-			try {
-				stage = Integer.parseInt(userAns);
-				if (stage < 0 || stage > 23) {
-					JOptionPane.showMessageDialog(null, "You didnt a valid stage.");
-				} else {
-					game_service game = Game_Server.getServer(stage);
-					server = new MyServer(game);
-					arena = new Arena(server.getGraph(), server.getFruits(), server.getRobots());
-					RefreshMinMaxFrame();
-					repaint();
-
-					if (isAuto) {
-						AutoGame = new AutoGame(server, arena);
-						AutoGame.setRobots();
-						isRobotSets = true;
-						this.arena.setRobots(server.getRobots());
-						repaint();
-					} else {
-						SetsRonots SR = new SetsRonots(this);
-						Thread t = new Thread(SR);
-						t.start();
-					}
-					
-				}
-			} catch (Exception e) {
-				JOptionPane.showMessageDialog(null, "You didnt enter an number.");
-			} 
+			initStage();
 			break;
 		case " start game " :
-			if (!isGameBegin) {
-				isGameBegin = true;
-				System.out.println("The game as begin .");
-				runGame RG = new runGame(this);
-				Thread t1 = new Thread(RG);
-				t1.start();
-				server.startGame();
-				if(isAuto)
-					AutoGame.moveRobots();
-			}
-			else 
-				System.out.println("The game was start alredy.");
+			startGame();
 			break;
-//		case " stop game " : // Open game to cheats .
-//			if (isGameBegin) { 
-//				gameSupport.stopGame();
-//				isGameBegin = false;
-//			}
-//			break;
 		case " move robot " :
-			if (server.isRunning()) {
-				moveRobot MR = new moveRobot(this);
-				Thread t2 = new Thread(MR);
-				t2.start();
-			}
+			moveRobot();
 			break;
 		case " create log " :
-			isLogger = true;
-			try {
-				this.KML_Logger = new KML_Logger(server , stage );
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-			
+			createLog();
 		}
-		
 	}
 	
+	private void moveRobot() {
+		if (server.isRunning()) {
+			moveRobot MR = new moveRobot(this);
+			Thread t2 = new Thread(MR);
+			t2.start();
+		}
+	}
+	
+	private void createLog() {
+		isLogger = true;
+		try {
+			this.KML_Logger = new KML_Logger(server , gameStage );
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+	}
+	
+	private void initStage() {
+		String userAns = JOptionPane.showInputDialog("Enter the stage you want to play." );
+		isRobotSets = false;
+		isGameBegin = false;
+		try {
+			gameStage = Integer.parseInt(userAns);
+			if (gameStage < 0 || gameStage > 23) {
+				JOptionPane.showMessageDialog(null, "You didnt a valid stage.");
+			} else {
+				game_service game = Game_Server.getServer(gameStage);
+				server = new MyServer(game);
+				arena = new Arena(server.getGraph(), server.getFruits(), server.getRobots());
+				RefreshMinMaxFrame();
+				repaint();
+				if (isAuto) {
+					AutoGame = new AutoGame(server, arena);
+					AutoGame.setRobots();
+					isRobotSets = true;
+					this.arena.setRobots(server.getRobots());
+					repaint();
+				} else {
+					SetsRonots SR = new SetsRonots(this);
+					Thread t = new Thread(SR);
+					t.start();
+				}
+			}
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "You didnt enter an number.");
+		} 
+	}
+	
+	private void startGame() {
+		if (!isGameBegin) {
+			isGameBegin = true;
+			System.out.println("The game as begin .");
+			runGame RG = new runGame(this);
+			Thread t1 = new Thread(RG);
+			t1.start();
+			server.startGame();
+			if(isAuto)
+				AutoGame.moveRobots();
+		}
+		else 
+			System.out.println("The game was start alredy.");
+	}
+
 	private class moveRobot implements Runnable {
 		MyGameGUI GameGUI;
 		
@@ -428,7 +481,7 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 				Point3D targetLoc = setPoint(GameGUI);
 				for (edge_data edge : arena.getGraph().getE(robotNode.getKey())) {
 					Point3D ScaleLocation = GameGUI.ScaledLoc( arena.getGraph().getNode(edge.getDest()).getLocation());
-					if (ScaleLocation.distance2D(targetLoc) < (GameGUI.nodeRad*4)) {
+					if (ScaleLocation.distance2D(targetLoc) < (nodeRad*4)) {
 						return arena.getGraph().getNode(edge.getDest());
 					}
 				}
@@ -451,24 +504,15 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 			}
 			while (GameGUI.server.time2End() > 0) {
 				server.moveRobots();
-//				if (toRepaint(arena.getRobots(), arena.getFruits())){
-					arena.setFruits(GameGUI.server.getFruits());
-					arena.setRobots(GameGUI.server.getRobots());
-					GameGUI.repaint();
-						server.moveRobots();
-					try {
-						Thread.sleep(50);
-					} catch (InterruptedException e) {
-						System.out.println(e.getMessage());
-					}
-//				} else {
-//					try {
-//						repaint();
-//						Thread.sleep(50);
-//					} catch (InterruptedException e) {
-//						System.out.println(e.getMessage());
-//					}
-//				}
+				arena.setFruits(GameGUI.server.getFruits());
+				arena.setRobots(GameGUI.server.getRobots());
+				GameGUI.repaint();
+				server.moveRobots();
+				try {
+					Thread.sleep(50);
+				} catch (InterruptedException e) {
+					System.out.println(e.getMessage());
+				}
 			}
 			System.out.println("End of game.");
 			isEnded = true;
@@ -520,7 +564,7 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 			for (Iterator<node_data> iterator = GameGUI.arena.getGraph().getV().iterator(); iterator.hasNext();) {
 				node_data node = iterator.next();
 				Point3D ScaleLocation = GameGUI.ScaledLoc( node.getLocation());
-				if (ScaleLocation.distance2D(tempPivot) < (GameGUI.nodeRad*4) ) {
+				if (ScaleLocation.distance2D(tempPivot) < (nodeRad*4) ) {
 					if (first) {
 						Addnode = node;
 						first = false;
@@ -557,5 +601,4 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 			GameGUI.repaint();
 		}
 	}
-
 }
