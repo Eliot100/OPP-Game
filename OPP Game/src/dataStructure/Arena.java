@@ -37,7 +37,7 @@ public class Arena implements arena_data {
 	}
 	/**
 	 * This function is change the arena_data fruit_data array to be new fruit_data array.
-	 * @param fruits - the new fruit_data array.
+	 * @param FruitsType - the new fruit_data array.
 	 */
 	@Override
 	public robot_data[] getRobots() {

@@ -6,19 +6,19 @@ import java.util.Iterator;
 import dataStructure.arena_data;
 import dataStructure.edge_data;
 import dataStructure.fruit_data;
-import dataStructure.fruits;
+import dataStructure.FruitsType;
 import dataStructure.node_data;
-import gameClient.game_support;
+import gameClient.game_server;
 
 public class Arena_Algo {
 	
 	private static final double eps = 0.00001;
 
-	public static void setGameFruits(arena_data arena, game_support gameSupport) {
+	public static void setGameFruits(arena_data arena, game_server gameSupport) {
 		arena.setFruits( gameSupport.getFruits());
 	}
 	
-	public static void setGameRobots(arena_data arena, game_support gameSupport) {
+	public static void setGameRobots(arena_data arena, game_server gameSupport) {
 		arena.setRobots(gameSupport.getRobots());
 	}
 	
@@ -33,9 +33,9 @@ public class Arena_Algo {
 					if ( eps >= Math.abs( node.getLocation().distance2D(arena.getGraph().getNode(edge.getDest()).getLocation()) - 
 							(node.getLocation().distance2D(f.getPos()) + f.getPos().distance2D(arena.getGraph().getNode(edge.getDest()).getLocation())))){
 
-						if (f.getType() == fruits.banana && edge.getSrc() > edge.getDest()) {
+						if (f.getType() == FruitsType.banana && edge.getSrc() > edge.getDest()) {
 							TheEdge.add(edge);
-						} else if (f.getType() == fruits.apple && edge.getSrc() < edge.getDest()) {
+						} else if (f.getType() == FruitsType.apple && edge.getSrc() < edge.getDest()) {
 							TheEdge.add(edge);
 						}
 					}

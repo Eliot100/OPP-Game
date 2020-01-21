@@ -18,12 +18,12 @@ public interface fruit_data {
 	/**
 	 * @return the type of the fruit_data (banana or apple).
 	 */
-	public fruits getType();
+	public FruitsType getType();
 	/**
 	 * This function is set this fruit_data type to be a fruit from enum fruits.
 	 * @param type - a fruit from enum fruits (banana or apple).
 	 */
-	public void setType(fruits type);
+	public void setType(FruitsType type);
 	/**
 	 * @return the score value (double) that robot gets after eating this fruit_data.  
 	 */

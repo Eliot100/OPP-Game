@@ -16,7 +16,7 @@ public class Fruit implements fruit_data {
 	/**
 	 * This field represents this Fruit type (banana or apple).
 	 */
-	private fruits type;
+	private FruitsType type;
 	/**
 	 * This field represents this Fruit location (Point3D).
 	 */
@@ -33,9 +33,9 @@ public class Fruit implements fruit_data {
 		this.value = jsonFruit.getDouble("value");
 		int typeNum = jsonFruit.getInt("type");
 		if (typeNum == -1) {
-			this.type = fruits.banana;
+			this.type = FruitsType.banana;
 		} else if (typeNum == 1) {
-			this.type = fruits.apple;
+			this.type = FruitsType.apple;
 		}
 		String pos  = jsonFruit.getString("pos");
 		String[] xyz = pos.split(",");
@@ -45,7 +45,7 @@ public class Fruit implements fruit_data {
 	 * @return the type of the fruit_data (banana or apple).
 	 */
 	@Override
-	public fruits getType() {
+	public FruitsType getType() {
 		return type;
 	}
 	/**
@@ -61,7 +61,7 @@ public class Fruit implements fruit_data {
 	 * @param type - a fruit from enum fruits (banana or apple).
 	 */
 	@Override
-	public void setType(fruits type) {
+	public void setType(FruitsType type) {
 		this.type = type;
 	}
 	/**

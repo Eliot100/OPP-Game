@@ -31,14 +31,10 @@ import oop_dataStructure.oop_graph;
  *
  */
 public class SimpleGameClient {
-//	private game_service game;
-//	private Robot[] robots;
-//	private Fruit[] fruits;
 	
 	public static void main(String[] a) {
 		test1();
 	}
-	
 	
 	public static void test1() {
 		int scenario_num = 20;

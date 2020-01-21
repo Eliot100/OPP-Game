@@ -7,14 +7,14 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import dataStructure.fruit_data;
-import dataStructure.fruits;
+import dataStructure.FruitsType;
 import dataStructure.robot_data;
 import utils.Point3D;
 
 public class KML_Logger implements Runnable {
 
 	private String fileName;
-	private game_support support;
+	private game_server server;
 	private String date;
 	private File OutputFile;
 	private String content;
@@ -89,8 +89,8 @@ public class KML_Logger implements Runnable {
 	 * @param fileName
 	 * @throws IOException 
 	 */
-	public KML_Logger(game_support support , int stage ) throws IOException {
-		this.support = support;
+	public KML_Logger(game_server support , int stage ) throws IOException {
+		this.server = support;
 		fileName = "data/" + stage + ".kml";
 		OutputFile = new File(fileName);
 		OutputFile.createNewFile();
@@ -136,7 +136,7 @@ public class KML_Logger implements Runnable {
 	 */
 	@Override
 	public void run() {
-		while(support.isRunning()) {
+		while(server.isRunning()) {
 			try {
 				content += screenShot();
 				writeToFile(content);
@@ -159,16 +159,16 @@ public class KML_Logger implements Runnable {
 		String PlaceMark = "";
 		getKmlFormatDate(); //update current date
 		//fruits
-		fruit_data[] fruitsArr = support.getFruits();
+		fruit_data[] fruitsArr = server.getFruits();
 		for (fruit_data fruit : fruitsArr) {
-			if(fruit.getType() == fruits.banana)
+			if(fruit.getType() == FruitsType.banana)
 				PlaceMark += this.addPlaceMark(fruit.getPos(), "banana");
-			else if (fruit.getType() == fruits.apple)
+			else if (fruit.getType() == FruitsType.apple)
 				PlaceMark += this.addPlaceMark(fruit.getPos(), "apple");
 		}
 
 		//robots
-		robot_data[] robotsArr = support.getRobots();
+		robot_data[] robotsArr = server.getRobots();
 		for (robot_data robot : robotsArr) {
 			PlaceMark += this.addPlaceMark(robot.getPos(), "robot");
 		}

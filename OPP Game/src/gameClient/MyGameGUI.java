@@ -24,14 +24,14 @@ import Server.Game_Server;
 import Server.game_service;
 import dataStructure.Arena;
 import dataStructure.edge_data;
-import dataStructure.fruits;
+import dataStructure.FruitsType;
 import dataStructure.node_data;
 import dataStructure.robot_data;
 import utils.Point3D;
 
 public class MyGameGUI extends JFrame implements ActionListener, MouseListener, MouseMotionListener {
 	private static final long serialVersionUID = 1;
-	private game_support gameSupport;
+	private game_server server;
 	private Arena arena;
 	public Point3D pivot;
 	private BufferedImage bi;
@@ -88,8 +88,8 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 	/**
 	 * @return this game_support.
 	 */
-	public game_support getSupport() {
-		return gameSupport;
+	public game_server getSupport() {
+		return server;
 	}
 	
 	/**
@@ -127,6 +127,7 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 			drowNode(node, g);
 		}
 	}
+	
 	private void RefreshMinMaxFrame() {
 		boolean b = true;
 		if (arena != null && arena.getGraph().nodeSize() != 0 ) {
@@ -239,17 +240,15 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 				menu1.add(Item);
 			}
 		}
-		
-
 		this.addMouseListener(this);
-		this.setSize(800, 500);
+		this.setSize(1300, 700);
 		this.setVisible(true);
 	}
 
 	private void paintTime(Graphics g) {
 		g.setColor(Color.BLACK);
-		if (arena != null && gameSupport.time2End() != -1) {
-			g.drawString("time to end : "+String.format("%.2f", (double) gameSupport.time2End()/360), 20, 20);
+		if (arena != null && server.time2End() != -1) {
+			g.drawString("time to end : "+String.format("%.2f", (double) server.time2End()/360), 20, 20);
 		} else if (isEnded) {
 			g.drawString("time to end : 0", 20, 20);
 		}
@@ -258,16 +257,16 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 	private void paintScore(Graphics g) {
 		g.setColor(Color.BLACK);
 		if (arena != null ) {
-			g.drawString("Score : "+String.format("%.2f", (double) gameSupport.getGrade()), getWidth()/2, 20);
+			g.drawString("Score : "+String.format("%.2f", (double) server.getGrade()), getWidth()/2, 20);
 		} 
 	}
 
 	private void paintFruit(Graphics g) {
 		for (int i = 0; i < arena.getFruits().length; i++) {
-			if (arena.getFruits()[i].getType() == fruits.apple) {
+			if (arena.getFruits()[i].getType() == FruitsType.apple) {
 //				g.setColor(Color.green);
 				g.drawImage(AppleImage, ScaleX(arena.getFruits()[i].getPos().x())-15, ScaleY(arena.getFruits()[i].getPos().y())-15, 30, 30, null);
-			} else if (arena.getFruits()[i].getType() == fruits.banana) {
+			} else if (arena.getFruits()[i].getType() == FruitsType.banana) {
 //				g.setColor(Color.yellow);
 				g.drawImage(BananaImage, ScaleX(arena.getFruits()[i].getPos().x())-10, ScaleY(arena.getFruits()[i].getPos().y())-15, 20, 30, null);
 			}
@@ -322,16 +321,16 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 					JOptionPane.showMessageDialog(null, "You didnt a valid stage.");
 				} else {
 					game_service game = Game_Server.getServer(stage);
-					gameSupport = new MainGameClient(game);
-					arena = new Arena(gameSupport.getGraph(), gameSupport.getFruits(), gameSupport.getRobots());
+					server = new MyServer(game);
+					arena = new Arena(server.getGraph(), server.getFruits(), server.getRobots());
 					RefreshMinMaxFrame();
 					repaint();
 
 					if (isAuto) {
-						AutoGame = new AutoGame(gameSupport, arena);
+						AutoGame = new AutoGame(server, arena);
 						AutoGame.setRobots();
 						isRobotSets = true;
-						this.arena.setRobots(gameSupport.getRobots());
+						this.arena.setRobots(server.getRobots());
 						repaint();
 					} else {
 						SetsRonots SR = new SetsRonots(this);
@@ -351,7 +350,7 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 				runGame RG = new runGame(this);
 				Thread t1 = new Thread(RG);
 				t1.start();
-				gameSupport.startGame();
+				server.startGame();
 				if(isAuto)
 					AutoGame.moveRobots();
 			}
@@ -365,7 +364,7 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 //			}
 //			break;
 		case " move robot " :
-			if (gameSupport.isRunning()) {
+			if (server.isRunning()) {
 				moveRobot MR = new moveRobot(this);
 				Thread t2 = new Thread(MR);
 				t2.start();
@@ -374,7 +373,7 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 		case " create log " :
 			isLogger = true;
 			try {
-				this.KML_Logger = new KML_Logger(gameSupport , stage );
+				this.KML_Logger = new KML_Logger(server , stage );
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
@@ -401,8 +400,8 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 			System.out.println("loc target : "+target.getLocation());
 			
 			theRobot.setDest(target.getKey());
-			GameGUI.gameSupport.RobotNextNode(theRobot.getId(), target.getKey());
-			GameGUI.gameSupport.moveRobots();
+			GameGUI.server.RobotNextNode(theRobot.getId(), target.getKey());
+			GameGUI.server.moveRobots();
 		}
 
 		private robot_data setRobot() {
@@ -450,13 +449,13 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 				Thread t = new Thread(this.GameGUI.KML_Logger);
 				t.start();
 			}
-			while (GameGUI.gameSupport.time2End() > 0) {
-				gameSupport.moveRobots();
+			while (GameGUI.server.time2End() > 0) {
+				server.moveRobots();
 //				if (toRepaint(arena.getRobots(), arena.getFruits())){
-					arena.setFruits(GameGUI.gameSupport.getFruits());
-					arena.setRobots(GameGUI.gameSupport.getRobots());
+					arena.setFruits(GameGUI.server.getFruits());
+					arena.setRobots(GameGUI.server.getRobots());
 					GameGUI.repaint();
-						gameSupport.moveRobots();
+						server.moveRobots();
 					try {
 						Thread.sleep(50);
 					} catch (InterruptedException e) {
@@ -553,7 +552,7 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 				}
 			}
 			System.out.println("The robot is set.");
-			GameGUI.arena.setRobots(gameSupport.getRobots()); 
+			GameGUI.arena.setRobots(server.getRobots()); 
 			isRobotSets = true;
 			GameGUI.repaint();
 		}

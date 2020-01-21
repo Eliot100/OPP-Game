@@ -8,7 +8,7 @@ import dataStructure.robot_data;
  * This interface represents the connection between the GameServer and the rest of the code.
  * @author Eli Ruvinov
  */
-public interface game_support {
+public interface game_server {
 	/**
 	 * @return the fruits from the game.
 	 */

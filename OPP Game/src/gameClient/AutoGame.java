@@ -7,38 +7,37 @@ import algorithms.Arena_Algo;
 import algorithms.Graph_Algo;
 import dataStructure.Arena;
 import dataStructure.DGraph;
-import dataStructure.edge_data;
 import dataStructure.fruit_data;
 import dataStructure.node_data;
 import dataStructure.robot_data;
 
 public class AutoGame {
-	private game_support Support;
+	private game_server server;
 	private Arena arena;
 	private Graph_Algo ga;
 
-	public AutoGame(game_support support, Arena arena) {
-		this.Support = support;
+	public AutoGame(game_server support, Arena arena) {
+		this.server = support;
 		this.arena = arena;
 		ga = new Graph_Algo(this.arena.getGraph());
 	}
 
 	public void setRobots() {
-		int robotsNum = Support.robotsSize();
-		int fruitsNum = Support.fruitsSize();
-		fruit_data[] fruits = Support.getFruits();
+		int robotsNum = server.robotsSize();
+		int fruitsNum = server.fruitsSize();
+		fruit_data[] fruits = server.getFruits();
 
 		if (robotsNum <= fruitsNum) {
 			for (int i = 0; i < robotsNum; i++) {
-				Support.placeRobot(Arena_Algo.getFruitEdge(arena, fruits[i]).getSrc());
+				server.placeRobot(Arena_Algo.getFruitEdge(arena, fruits[i]).getSrc());
 			}
 		}
 		else {
 			for (int i = 0; i < fruitsNum; i++) {
-				Support.placeRobot(Arena_Algo.getFruitEdge(arena, fruits[i]).getSrc());
+				server.placeRobot(Arena_Algo.getFruitEdge(arena, fruits[i]).getSrc());
 			}
 			for (int i = 0; i < robotsNum-fruitsNum; i++) {
-				Support.placeRobot(randomPlace(arena.getGraph()));
+				server.placeRobot(randomPlace(arena.getGraph()));
 			}
 		}
 	}
@@ -57,36 +56,35 @@ public class AutoGame {
 		t.start();
 	}
 	
-	private void randomWalk(robot_data robot) {
-		int dest = -1;
-		int r = (int)(Math.random()*(arena.getGraph().getE(robot.getSrc()).size()));
-		Iterator<edge_data> itr = arena.getGraph().getE(robot.getSrc()).iterator();
-		for(int i=0; i<r ;i++) 
-			dest = itr.next().getDest();
-		Support.RobotNextNode(robot.getId(), dest);
-	}
+//	private void randomWalk(robot_data robot) {
+//		int dest = -1;
+//		int r = (int)(Math.random()*(arena.getGraph().getE(robot.getSrc()).size()));
+//		Iterator<edge_data> itr = arena.getGraph().getE(robot.getSrc()).iterator();
+//		for(int i=0; i<r ;i++) 
+//			dest = itr.next().getDest();
+//		Support.RobotNextNode(robot.getId(), dest);
+//	}
 	
-	private void moveSimultan() {
-		double[][] matrix = new double[Support.robotsSize()][Support.fruitsSize()]; 
-		for (int i = 0; i < matrix.length; i++) {
-			for (int j = 0; j < matrix[0].length; j++) {
-				double dist = Arena_Algo.getFruitEdge(arena, Support.getFruits()[j]).getWeight() 
-						+ ga.shortestPathDist(Support.getRobots()[i].getSrc(), Arena_Algo.getFruitEdge(arena, Support.getFruits()[j]).getSrc());
-				matrix[i][j] = dist;
-			}
-		}
-		
-		boolean[] flags = new boolean[Support.fruitsSize()];
-		robot_data[] robots = Support.getRobots();
-		for (robot_data robot : robots) {
-			if(robot.getDest() == -1)
-				move2ClosestFruit(robot, flags);
-		}
-	}
+//	private void moveSimultan() {
+//		double[][] matrix = new double[Support.robotsSize()][Support.fruitsSize()]; 
+//		for (int i = 0; i < matrix.length; i++) {
+//			for (int j = 0; j < matrix[0].length; j++) {
+//				double dist = Arena_Algo.getFruitEdge(arena, Support.getFruits()[j]).getWeight() 
+//						+ ga.shortestPathDist(Support.getRobots()[i].getSrc(), Arena_Algo.getFruitEdge(arena, Support.getFruits()[j]).getSrc());
+//				matrix[i][j] = dist;
+//			}
+//		}
+//		boolean[] flags = new boolean[Support.fruitsSize()];
+//		robot_data[] robots = Support.getRobots();
+//		for (robot_data robot : robots) {
+//			if(robot.getDest() == -1)
+//				move2ClosestFruit(robot, flags);
+//		}
+//	}
 	
 	private void move2ClosestFruit(robot_data robot, boolean[] flags) {
 		int dest = -1;
-		fruit_data[] fruits = Support.getFruits();
+		fruit_data[] fruits = server.getFruits();
 		double dist = 0;
 		int fruitPlace = 0;
 		boolean first = true;
@@ -137,37 +135,37 @@ public class AutoGame {
 				}
 			}
 		}
-		Support.RobotNextNode(robot.getId(), dest);
+		server.RobotNextNode(robot.getId(), dest);
 		flags[fruitPlace] = true;
 	}
 
-	private class randomWalk implements Runnable {
-
-		@Override
-		public void run() {
-			while(Support.isRunning()) {
-				robot_data[] robots = Support.getRobots();
-				for (robot_data robot : robots) {
-					if(robot.getDest() == -1);
-						randomWalk(robot);
-				}
-				try {
-					Thread.sleep(50);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-
-	}
+//	private class randomWalk implements Runnable {
+//
+//		@Override
+//		public void run() {
+//			while(Support.isRunning()) {
+//				robot_data[] robots = Support.getRobots();
+//				for (robot_data robot : robots) {
+//					if(robot.getDest() == -1);
+//						randomWalk(robot);
+//				}
+//				try {
+//					Thread.sleep(50);
+//				} catch (InterruptedException e) {
+//					e.printStackTrace();
+//				}
+//			}
+//		}
+//
+//	}
 	
 	private class move2ClosestFruit implements Runnable {
 
 		@Override
 		public void run() {
-			while(Support.isRunning()) {
-				boolean[] flags = new boolean[Support.fruitsSize()];
-				robot_data[] robots = Support.getRobots();
+			while(server.isRunning()) {
+				boolean[] flags = new boolean[server.fruitsSize()];
+				robot_data[] robots = server.getRobots();
 				for (robot_data robot : robots) {
 					move2ClosestFruit(robot, flags);
 				}
