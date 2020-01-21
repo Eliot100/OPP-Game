@@ -392,6 +392,7 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 	private void initStage() {
 		String userAns = JOptionPane.showInputDialog("Enter the stage you want to play." );
 		isRobotSets = false;
+		isLogger = false;
 		isGameBegin = false;
 		try {
 			gameStage = Integer.parseInt(userAns);

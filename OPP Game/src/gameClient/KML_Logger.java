@@ -122,7 +122,6 @@ public class KML_Logger implements Runnable {
 		OutputFile = new File(fileName);
 		OutputFile.createNewFile();
 		content = finishHeader + appleIcon + bananaIcon + robotIcon;
-		System.out.println(gameStage);
 	}
 	@Override
 	/**
