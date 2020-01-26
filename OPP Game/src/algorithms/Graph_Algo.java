@@ -183,7 +183,7 @@ public class Graph_Algo implements graph_algorithms{
 	public double shortestPathDist(int src, int dest) {
 		LinkedList<node_data> path = (LinkedList<node_data>) this.shortestPath(src, dest);
 		if (path == null) {
-			throw new RuntimeException("It isn't posibol to Reache dest node from src node");
+			throw new RuntimeException("shortest path form "+src+" to "+dest+" is null");
 		}
 		Iterator<node_data> iterator = path.iterator();
 		node_data lastNode_data; 

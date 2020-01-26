@@ -18,29 +18,56 @@ import dataStructure.Robot;
 import dataStructure.fruit_data;
 import dataStructure.microDGraph;
 import dataStructure.robot_data;
-
+/**
+ * This class use to comunicte with the server esaly
+ * @author Eli Ruvinov
+ */
 public class MyServer implements game_server {
 	private game_service game;
-	
+	/**
+	 * 
+	 * @param game - the game_service that I comunicte with.
+	 */
 	public MyServer(game_service game){
 		this.game = game;
 	}
-	
+	/**
+	 * This function is giving the game server the order 
+	 * to move the robots in the directed graph of the game.
+	 */
 	@Override
 	public void moveRobots() {
-		game.move();
+		boolean b = true;
+		while (b) {
+			try {
+				game.move();
+				b = false;
+			} catch (Exception e) {b = true;}
+		}
 	}
-
+	/**
+	 * This function is giving the game server the order 
+	 * to put robot in node of the game graph.
+	 * @param nodeKey - the key of the node which you want to put the robot.
+	 */
 	@Override
 	public void placeRobot(int nodeKey) {
 		game.addRobot(nodeKey);
 	}
-
+	/**
+	 * This function is giving the game server the order 
+	 * to change the robot destination by node key.
+	 * @param robotId - the id of the robot you set its destination node.
+	 * @param nodeKey - the key of the destination node 
+	 * which you want the robot will move to.
+	 */
 	@Override
 	public void RobotNextNode(int robotId, int destKey) {
 		game.chooseNextEdge(robotId, destKey);
 	}
-
+	/**
+	 * @return true if there is more time to the game else false. 
+	 */
 	@Override
 	public boolean isRunning() {
 		try {
@@ -49,17 +76,27 @@ public class MyServer implements game_server {
 			return false;
 		}
 	}
-
+	/**
+	 * This function is giving the game server the order 
+	 * to start the game.
+	 * @return how much time left to the game.
+	 */
 	@Override
 	public long startGame() {
 		return game.startGame();
 	}
-
+	/**
+	 * This function is giving the game server the order 
+	 * to stop the game.
+	 * @return how much time left to the game.
+	 */
 	@Override
 	public long stopGame() {
 		return game.stopGame();
 	}
-
+	/**
+	 * @return how much time left to the game.
+	 */
 	@Override
 	public long time2End() { 
 		try {
@@ -68,24 +105,37 @@ public class MyServer implements game_server {
 			return 0;
 		}
 	}
-
+	/**
+	 * @return the fruits from the game.
+	 */
 	@Override
 	public fruit_data[] getFruits() {
-		fruit_data[] fruits = new Fruit[fruitsSize()];
-		Iterator<String> f_iter = game.getFruits().iterator();
-		int i = 0;
-		while(f_iter.hasNext()) {
-			try {
-				JSONObject JSONfruit = (new JSONObject(f_iter.next())).getJSONObject("Fruit");
-				fruits[i] = new Fruit(JSONfruit) ;
-			} catch (JSONException e) {
-				throw new RuntimeException(e.toString());
+		boolean b = true;
+		fruit_data[] fruits = null;
+		while (b) {
+			b = false;
+			fruits = new Fruit[fruitsSize()];
+			Iterator<String> f_iter = game.getFruits().iterator();
+			int i = 0;
+			while(f_iter.hasNext()) {
+				try {
+					JSONObject JSONfruit = (new JSONObject(f_iter.next())).getJSONObject("Fruit");
+					fruits[i] = new Fruit(JSONfruit) ;
+				} catch (JSONException e) {
+					throw new RuntimeException(e.toString());
+				}
+				i++;
 			}
-			i++;
+			for (fruit_data fruit : fruits) {
+				if(fruit == null)
+					b = true;
+			}
 		}
 		return fruits;
 	}
-
+	/**
+	 * @return the robots from the game.
+	 */
 	@Override
 	public robot_data[] getRobots() {
 		robot_data[] robots = new Robot[robotsSize()];
@@ -101,7 +151,9 @@ public class MyServer implements game_server {
 		}
 		return robots;
 	}
-
+	/**
+	 * @return the graph (directed) of the game.
+	 */
 	@Override
 	public DGraph getGraph() {
 		DGraph graph = new DGraph();
@@ -131,17 +183,21 @@ public class MyServer implements game_server {
 		}
 		return graph;
 	}
-
+	/**
+	 * @return the game_service from the game.
+	 */
 	@Override
 	public game_service getGameService() {
 		return game;
 	}
-
+	/**
+	 * @return how many fruit_data there is in the game.
+	 */
 	@Override
 	public int fruitsSize() {
-		String info = game.toString();
-		JSONObject JSONgame;
 		try {
+			String info = game.toString();
+			JSONObject JSONgame;
 			JSONgame = new JSONObject(info).getJSONObject("GameServer");
 			return JSONgame.getInt("fruits");
 		} catch (JSONException e) {
@@ -149,12 +205,14 @@ public class MyServer implements game_server {
 			throw new RuntimeException("JSONException in robotsSize Function ");
 		}
 	}
-
+	/**
+	 * @return how many robot_data there is in the game.
+	 */
 	@Override
 	public int robotsSize() {
-		String info = game.toString();
-		JSONObject JSONgame;
 		try {
+			String info = game.toString();
+			JSONObject JSONgame;
 			JSONgame = new JSONObject(info).getJSONObject("GameServer");
 			return JSONgame.getInt("robots");
 		} catch (JSONException e) {
@@ -162,12 +220,14 @@ public class MyServer implements game_server {
 			throw new RuntimeException("JSONException in robotsSize Function ");
 		}
 	}
-
+	/**
+	 * @return how many moves was playd.
+	 */
 	@Override
 	public int getMoves() {
-		String info = game.toString();
-		JSONObject JSONgame;
 		try {
+			String info = game.toString();
+			JSONObject JSONgame;
 			JSONgame = new JSONObject(info).getJSONObject("GameServer");
 			return JSONgame.getInt("moves");
 		} catch (JSONException e) {
@@ -175,12 +235,14 @@ public class MyServer implements game_server {
 			throw new RuntimeException("JSONException in getMoves Function ");
 		}
 	}
-
+	/**
+	 * @return the grade of the game.
+	 */
 	@Override
 	public double getGrade() {
-		String info = game.toString();
-		JSONObject JSONgame;
 		try {
+			String info = game.toString();
+			JSONObject JSONgame;
 			JSONgame = new JSONObject(info).getJSONObject("GameServer");
 			return JSONgame.getDouble("grade");
 		} catch (JSONException e) {
@@ -188,7 +250,16 @@ public class MyServer implements game_server {
 			throw new RuntimeException("JSONException in getMoves Function ");
 		}
 	}
-	
-	
-
+	/**
+	 * Sending the content (of the kml file) to the server
+	 * @param content
+	 */
+	@Override
+	public void sendKML(String content) {
+		try {
+			game.sendKML(content);
+		} catch (Exception e) {
+			System.out.println("didnt send the log.");
+		}
+	}
 }

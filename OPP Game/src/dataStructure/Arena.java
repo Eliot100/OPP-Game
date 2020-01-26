@@ -70,7 +70,6 @@ public class Arena implements arena_data {
 	 * This function is change the arena_data robot_data array to be new robot_data array.
 	 * @param robots - the new robot_data array.
 	 */
-	@Override
 	public void setRobots(robot_data[] robots) {
 		this.robots = robots;
 	}

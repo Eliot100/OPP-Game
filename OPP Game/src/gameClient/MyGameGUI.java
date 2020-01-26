@@ -14,6 +14,8 @@ import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 
 import javax.imageio.ImageIO;
@@ -22,8 +24,10 @@ import javax.swing.JOptionPane;
 
 import Server.Game_Server;
 import Server.game_service;
+import algorithms.Arena_Algo;
 import dataStructure.Arena;
 import dataStructure.edge_data;
+import dataStructure.fruit_data;
 import dataStructure.FruitsType;
 import dataStructure.node_data;
 import dataStructure.robot_data;
@@ -84,7 +88,10 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 	 * @throws IOException 
 	 */
 	public MyGameGUI() throws IOException {
+		int id = Integer.parseInt(JOptionPane.showInputDialog("Enter id" ));
+		Game_Server.login(id);
 		String userAns = JOptionPane.showInputDialog("Enter 'A' for Aotomatic gui, else the window will be manual." );
+		isAuto = false;
 		if (userAns.equals("A")) {
 			isAuto = true;
 		}
@@ -92,12 +99,6 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 		init(); 
 		bi = new BufferedImage(1500, 1000, BufferedImage.TYPE_INT_RGB );
 		Insets = getInsets();
-	}
-	/**
-	 * @return this game_support.
-	 */
-	public game_server getSupport() {
-		return server;
 	}
 	/**
 	 * This is the function that paint the GUI frame. 
@@ -108,13 +109,13 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 			g1 = bi.getGraphics();
 			g1.setColor(Color.white);
 			g1.fillRect(0, 0, this.getWidth(), this.getHeight());
-
 			if (arena != null ) {
 				paintDGraph(g1);
 				paintFruit(g1);
 				paintRobot(g1);
 				paintTime(g1);
 				paintScore(g1);
+				paintMoves(g1);
 			}
 			g.drawImage(bi, Insets.left, Insets.top, this);
 		} else firstPaint = false;
@@ -162,7 +163,6 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 						maxY = node.getLocation().y();
 					}
 				}
-
 			}
 		}
 	}
@@ -239,7 +239,7 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 		g.setColor(Color.BLUE);
 		g.drawString(""+node.getKey(), ScaleX(node.getLocation().x())-2, ScaleY( node.getLocation().y())-9);
 	}
-	
+
 	private Point3D edgeDirectionPoint(Point3D srcPoint, Point3D destPoint) {
 		return new Point3D((srcPoint.x()+7*destPoint.x())/8, (srcPoint.y()+7*destPoint.y())/8);
 	}
@@ -260,14 +260,14 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 
 		menuBar.add(menu1); 
 		if (isAuto) {
-			String[] gameFunctions = {" init stage ", " create log ", " start game "}; 
+			String[] gameFunctions = {" init stage ", " start game ", " send log ", " save log " }; 
 			for (int i = 0; i < gameFunctions.length; i++) {
 				MenuItem Item = new MenuItem(gameFunctions[i]);
 				Item.addActionListener(this);
 				menu1.add(Item);
 			}
 		} else {
-			String[] gameFunctions = {" init stage ", " create log ", " start game ", " move robot "}; 
+			String[] gameFunctions = {" init stage ", " start game ", " move robot ",  " send log ", " save log "}; 
 			for (int i = 0; i < gameFunctions.length; i++) {
 				MenuItem Item = new MenuItem(gameFunctions[i]);
 				Item.addActionListener(this);
@@ -282,17 +282,25 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 	private void paintTime(Graphics g) {
 		g.setColor(Color.BLACK);
 		if (arena != null && server.time2End() != -1) {
-			g.drawString("time to end : "+String.format("%.2f", (double) server.time2End()/360), 20, 20);
+			g.drawString("time to end : "+String.format("%.1f", (double) server.time2End()/1000), 20, 20);
 		} else if (isEnded) {
 			g.drawString("time to end : 0", 20, 20);
 		}
 	}
-	
+
 	private void paintScore(Graphics g) {
 		g.setColor(Color.BLACK);
 		if (arena != null ) {
 			g.drawString("Score : "+String.format("%.2f", (double) server.getGrade()), getWidth()/2, 20);
 		} 
+	}
+
+
+	private void paintMoves(Graphics g) {
+		g.setColor(Color.BLACK);
+		if (arena != null ) {
+			g.drawString("Moves : "+server.getMoves(), getWidth()/3, 20);
+		}
 	}
 
 	private void paintFruit(Graphics g) {
@@ -302,7 +310,6 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 			} else if (arena.getFruits()[i].getType() == FruitsType.banana) {
 				g.drawImage(BananaImage, ScaleX(arena.getFruits()[i].getPos().x())-10, ScaleY(arena.getFruits()[i].getPos().y())-15, 20, 30, null);
 			}
-			
 		}
 	}
 
@@ -367,11 +374,18 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 		case " move robot " :
 			moveRobot();
 			break;
-		case " create log " :
-			createLog();
+		case " save log " :
+			try {
+				this.KML_Logger.newFile(""+gameStage);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			break;
+		case " send log " :
+			server.sendKML(this.KML_Logger.content);
 		}
 	}
-	
+
 	private void moveRobot() {
 		if (server.isRunning()) {
 			moveRobot MR = new moveRobot(this);
@@ -379,7 +393,7 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 			t2.start();
 		}
 	}
-	
+
 	private void createLog() {
 		isLogger = true;
 		try {
@@ -388,7 +402,7 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 			e1.printStackTrace();
 		}
 	}
-	
+
 	private void initStage() {
 		String userAns = JOptionPane.showInputDialog("Enter the stage you want to play." );
 		isRobotSets = false;
@@ -396,7 +410,7 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 		isGameBegin = false;
 		try {
 			gameStage = Integer.parseInt(userAns);
-			if (gameStage < 0 || gameStage > 23) {
+			if (gameStage < -1 || gameStage > 23) {
 				JOptionPane.showMessageDialog(null, "You didnt a valid stage.");
 			} else {
 				game_service game = Game_Server.getServer(gameStage);
@@ -420,17 +434,19 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 			JOptionPane.showMessageDialog(null, "You didnt enter an number.");
 		} 
 	}
-	
+
 	private void startGame() {
 		if (!isGameBegin) {
 			isGameBegin = true;
 			System.out.println("The game as begin .");
-			runGame RG = new runGame(this);
-			Thread t1 = new Thread(RG);
-			t1.start();
+			if(isAuto) {
+				runGame RG = new runGame(this);
+				Thread t1 = new Thread(RG);
+				t1.start();
+//				AutoGame.moveRobots();
+			}
+			createLog();
 			server.startGame();
-			if(isAuto)
-				AutoGame.moveRobots();
 		}
 		else 
 			System.out.println("The game was start alredy.");
@@ -438,21 +454,21 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 
 	private class moveRobot implements Runnable {
 		MyGameGUI GameGUI;
-		
+
 		public moveRobot (MyGameGUI myGameGUI) {
 			this.GameGUI = myGameGUI;
 		}
-		
+
 		@Override
 		public void run() {
 			GameGUI.newPivot = false;
-			
+
 			robot_data theRobot = setRobot();
 			System.out.println("loc robot : "+theRobot.getPos());
-			
+
 			node_data target = setTarget(GameGUI, theRobot);
 			System.out.println("loc target : "+target.getLocation());
-			
+
 			theRobot.setDest(target.getKey());
 			GameGUI.server.RobotNextNode(theRobot.getId(), target.getKey());
 			GameGUI.server.moveRobots();
@@ -489,54 +505,280 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 			}
 		}
 	}
+
+	private class PaintAllTheTime implements Runnable {
+
+		private PaintAllTheTime() {}
+
+		@Override
+		public void run() {
+			while (server.time2End() > 0) {
+				repaint();
+				try {
+					Thread.sleep(5);
+				} catch (InterruptedException e) {
+					System.out.println(e.getMessage());
+				}
+			}
+			repaint();
+		}
+	}
 	
-	private class runGame implements Runnable {
-		MyGameGUI GameGUI;
+	private void RobotEating (robot_data robot, fruit_data fruit) {
+		RobotEating RobotEating = new RobotEating(robot, fruit);
+		Thread t = new Thread(RobotEating);
+		t.start();
+	}
+	
+	private void RobotToNext(robot_data robot, flagBol flag, boolean isEeat, ArrayList<fruit_data> theFruits) {
+		RobotToNext RobotEating = new RobotToNext(robot, flag, isEeat, theFruits);
+		Thread t = new Thread(RobotEating);
+		t.start();
+	}
+	
+	private class RobotToNext implements Runnable {
+		robot_data robot;
+		flagBol flag;
+		boolean isEeat; 
+		ArrayList<fruit_data> theFruits;
+
+		private RobotToNext(robot_data robot, flagBol flag, boolean isEeat, ArrayList<fruit_data> theFruits) {
+			this.robot = robot;
+			this.flag = flag;
+			this.isEeat = isEeat;
+			this.theFruits = theFruits;
+		}
+
+		@Override
+		public void run() {
+			edge_data edge = server.getGraph().getEdge(robot.getSrc(), robot.getDest());
+			long startTime = (new Date()).getTime();
+//			if(isEeat) { 
+//				Point3D lastPos = server.getGraph().getNode(edge.getSrc()).getLocation();
+//				Point3D[] theFruitsPos = getFruitsPos(theFruits, lastPos);
+//				for (int i = 0; i < theFruitsPos.length; i++) {
+//					double moveTime = 
+//					
+//					flag.setFlag(true);
+//					try {
+//						Thread.sleep(1);
+//					} catch (InterruptedException e) {
+//						e.printStackTrace();
+//					}
+//					lastPos = theFruitsPos[i];
+// 				}
+//			} else {
+				double moveTime = (edge.getWeight()/robot.getSpeed())*1000;
+				while ((new Date()).getTime() - startTime -100 < moveTime) {
+					try {
+						Thread.sleep(5);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+//			}
+			flag.setFlag(true);
+		}
+
+		private Point3D[] getFruitsPos(ArrayList<fruit_data> theFruits, Point3D src ) {
+			Point3D[] theFruitsPos = new Point3D[theFruits.size()];
+			int i = 0;
+			for (Iterator<fruit_data> iterator = theFruits.iterator(); iterator.hasNext(); i++) {
+				fruit_data fruit = (fruit_data) iterator.next();
+				theFruitsPos[i] = fruit.getPos();
+			}
+			for (int j = 0; j < theFruitsPos.length-1; j++) {
+				for (int jj = j; jj < theFruitsPos.length; jj++) {
+					if (theFruitsPos[j].distance3D(src) > theFruitsPos[jj].distance3D(src))
+						swap(theFruitsPos, j, jj);
+				}
+			}
+			return theFruitsPos;
+		}
+
+		private void swap(Point3D[] theFruitsPos, int j, int jj) {
+			Point3D temp = theFruitsPos[j];
+			theFruitsPos[j] = theFruitsPos[jj];
+			theFruitsPos[jj] = temp;
+		}
 		
-		public runGame (MyGameGUI myGameGUI) {
-			this.GameGUI = myGameGUI;
+	}
+	
+	private class RobotEating implements Runnable {
+		robot_data robot;
+		fruit_data fruit;
+		
+		private RobotEating (robot_data robot, fruit_data fruit) {
+			this.fruit = fruit;
+			this.robot = robot;
 		}
 		
 		@Override
 		public void run() {
+			edge_data edge = server.getGraph().getEdge(robot.getSrc(), robot.getDest());
+			double moveTime = (edge.getWeight()/robot.getSpeed())*1000;
+			long startTime = (new Date()).getTime();
+			if(robot.getSrc() == Arena_Algo.getFruitEdge(server.getGraph(), fruit).getSrc()
+					&& robot.getDest() == Arena_Algo.getFruitEdge(server.getGraph(), fruit).getDest()) {
+				Point3D p = fruit.getPos();
+				Point3D src = server.getGraph().getNode(robot.getSrc()).getLocation();
+				Point3D dest = server.getGraph().getNode(robot.getDest()).getLocation();
+				long duringTime = (long) ((src.distance2D(p)/src.distance2D(dest))*moveTime);
+				boolean b = true;
+				while (b) {
+					if ((new Date()).getTime() - startTime > duringTime ) {
+						server.moveRobots();
+						b = false;
+					}
+					else {
+						try {
+							Thread.sleep(5);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+			}
+		}
+	}
+
+	private void RobotMovement(robot_data robot) {
+		RobotMovement RM = new RobotMovement(robot);
+		Thread t = new Thread(RM);
+		t.start();
+	}
+	
+	private class RobotMovement implements Runnable {
+		robot_data robot;
+
+		public RobotMovement(robot_data robot) {
+			this.robot = robot;
+		}
+
+		@Override
+		public void run() {
+			Point3D src = server.getGraph().getNode(robot.getSrc()).getLocation();
+			Point3D dest = server.getGraph().getNode(robot.getDest()).getLocation();
+			edge_data edge = server.getGraph().getEdge(robot.getSrc(), robot.getDest());
+			double moveTime = (edge.getWeight()/robot.getSpeed())*1000;
+			long startTime = (new Date()).getTime();
+			boolean flag = true;
+			long timePast;
+			while (flag) {
+				timePast = (new Date()).getTime() - startTime;
+				for (robot_data robot : arena.getRobots()) {
+					if(robot.getId() == this.robot.getId()) {
+						robot.setPos(new Point3D(src.x()*((moveTime - timePast)/moveTime)+dest.x()*(timePast/moveTime),
+								 src.y()*((moveTime - timePast)/moveTime)+dest.y()*(timePast/moveTime)));
+					}
+				}
+				robot.setPos(new Point3D(src.x()*((moveTime - timePast)/moveTime)+dest.x()*(timePast/moveTime),
+										 src.y()*((moveTime - timePast)/moveTime)+dest.y()*(timePast/moveTime)));
+//				System.out.println(robot.getPos());
+				try {
+					Thread.sleep(50);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				if(timePast >= moveTime)
+					flag = false;
+			}
+		}
+	}
+
+	private class runGame implements Runnable {
+		MyGameGUI GameGUI;
+
+		private runGame (MyGameGUI myGameGUI) {
+			this.GameGUI = myGameGUI;
+		}
+
+		@Override
+		public void run() {
+			Thread t0 = new Thread(new PaintAllTheTime());
+			t0.start();
 			if (isLogger) {
 				Thread t = new Thread(this.GameGUI.KML_Logger);
 				t.start();
 			}
+			robot_data[] robots = server.getRobots();
+			fruit_data[] fruits = server.getFruits();
+			arena.setRobots(robots);
+			arena.setFruits(fruits);
+			flagBol flag = new flagBol(false);
+//			int i = 0;
 			while (GameGUI.server.time2End() > 0) {
-				server.moveRobots();
-				arena.setFruits(GameGUI.server.getFruits());
-				arena.setRobots(GameGUI.server.getRobots());
-				GameGUI.repaint();
-				server.moveRobots();
+				if(flag.getFlag()) {
+					server.moveRobots();
+					flag.setFlag(false);
+				}
+				double eps = 0.0000000001;
+				for (robot_data robot : robots) {
+					for (fruit_data fruit : fruits) {
+						if (robot.getPos().distance3D(fruit.getPos()) < eps) {
+							server.moveRobots();
+							fruits = server.getFruits();
+							robots = server.getRobots();
+						}
+					}
+				}
+				AutoGame AutoGame = new AutoGame( GameGUI.server, GameGUI.arena);
+				for (robot_data robot : robots) {
+					if (robot.getDest() == -1) {
+						int dest = AutoGame.moveSimultan(robot);
+						robot.setDest(dest);
+						RobotMovement(robot);
+						boolean isEeat = false;
+						ArrayList<fruit_data> TheFruits = new ArrayList<fruit_data>();
+						for (fruit_data fruit : fruits) {
+							if(robot.getSrc() == Arena_Algo.getFruitEdge(arena.getGraph(), fruit).getSrc()
+									&& robot.getDest() == Arena_Algo.getFruitEdge(arena.getGraph(), fruit).getDest()) {
+								isEeat = true;
+								TheFruits.add(fruit);
+								RobotEating(robot, fruit);
+							}
+						}
+						RobotToNext(robot, flag, isEeat, TheFruits);
+						server.RobotNextNode(robot.getId(), dest);
+//						server.moveRobots();
+					}
+				}
+				fruits = server.getFruits();
+				robots = server.getRobots();
+//				arena.setRobots(robots);
+				arena.setFruits(fruits);
 				try {
-					Thread.sleep(50);
+					Thread.sleep(1);
 				} catch (InterruptedException e) {
 					System.out.println(e.getMessage());
 				}
+//				i++;
+//				if(i%20 == 0) {
+//					for (robot_data robot : robots) {
+//						System.out.println((int) (i/20)+") robot id: "+robot.getId()+", robot pos: "+robot.getPos() +", robot src: "+robot.getSrc() + 
+//								", robot dest: "+robot.getDest() +" .");
+//					}
+//				}
 			}
 			System.out.println("End of game.");
 			isEnded = true;
 			GameGUI.repaint();
 		}
-
-//		private boolean toRepaint(robot_data[] robots2, fruit_data[] fruits2) {
-//			robot_data[] robots = gameSupport.getRobots();
-//			fruit_data[] fruits = gameSupport.getFruits();
-//			try {
-//				for (int i = 0; i < fruits.length; i++) {
-//					if(!fruits[i].getPos().equals(fruits2[i].getPos()) )
-//						return true;
-//				}
-//				for (int i = 0; i < robots.length; i++) {
-//					if(!robots[i].getPos().equals(robots2[i].getPos()) )
-//						return true;
-//				}
-//			} catch (Exception e) {}
-//			return false;
-//		}
 	}
 	
+	private class flagBol {
+		private boolean flag;
+		private flagBol(boolean flag) {
+			this.setFlag(flag);
+		}
+		private boolean getFlag() {
+			return flag;
+		}
+		private void setFlag(boolean flag) {
+			this.flag = flag;
+		}
+	}
+
 	private static Point3D setPoint(MyGameGUI GameGUI) {
 		while(true) {
 			if (GameGUI.newPivot) {
@@ -551,14 +793,14 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 			}
 		}
 	}
-	
+
 	private class SetsRonots implements Runnable {
 		MyGameGUI GameGUI;
-		
-		public SetsRonots (MyGameGUI myGameGUI) {
+
+		private SetsRonots (MyGameGUI myGameGUI) {
 			this.GameGUI = myGameGUI;
 		}
-		
+
 		private node_data addNode(Point3D tempPivot) {
 			node_data Addnode = null; 
 			boolean first = true;
@@ -577,13 +819,13 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 			}
 			return Addnode;
 		}
-		
+
 		@Override
 		public void run() {
-			System.out.println("Place "+GameGUI.getSupport().robotsSize()+" robots");
+			System.out.println("Place "+GameGUI.server.robotsSize()+" robots");
 			Point3D tempPivot = null;
 			GameGUI.newPivot = false;
-			for (int i = 0; i < GameGUI.getSupport().robotsSize(); i++) {
+			for (int i = 0; i < GameGUI.server.robotsSize(); i++) {
 				tempPivot = setPoint(GameGUI);
 				System.out.println(tempPivot);
 				node_data Addnode = null;
@@ -593,7 +835,7 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 					i--;
 				} else {
 					System.out.println("set Robot "+i);
-					GameGUI.getSupport().placeRobot(Addnode.getKey());
+					GameGUI.server.placeRobot(Addnode.getKey());
 				}
 			}
 			System.out.println("The robot is set.");

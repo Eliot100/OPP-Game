@@ -20,6 +20,7 @@ public interface robot_data {
 	 * the next node that this robot_data will move to.
 	 */
 	public void setDest(int dest);
+	public void setPos(Point3D p); 
 	/**
 	 * @return the id of this robot_data
 	 */

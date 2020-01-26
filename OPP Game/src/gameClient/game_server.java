@@ -10,7 +10,7 @@ import dataStructure.robot_data;
  */
 public interface game_server {
 	/**
-	 * @return the fruits from the game.
+	 * @return the game_service from the game.
 	 */
 	public game_service getGameService() ;
 	/**
@@ -80,4 +80,9 @@ public interface game_server {
 	 * @return how much time left to the game.
 	 */
 	public long time2End();
+	/**
+	 * Sending the content (of the kml file) to the server
+	 * @param content
+	 */
+	public void sendKML(String content);
 }

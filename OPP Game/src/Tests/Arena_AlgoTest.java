@@ -17,9 +17,9 @@ class Arena_AlgoTest {
 		game_service game = Game_Server.getServer(0);
 		MyServer server = new MyServer(game);
 		Arena arena = new Arena(server.getGraph(), server.getFruits(), server.getRobots());
-		assertEquals(Arena_Algo.getFruitEdge(arena, arena.getFruits()[0]), 
+		assertEquals(Arena_Algo.getFruitEdge(arena.getGraph(), arena.getFruits()[0]), 
 				arena.getGraph().getEdge(9, 8));
-		assertNotEquals(Arena_Algo.getFruitEdge(arena, arena.getFruits()[0]), 
+		assertNotEquals(Arena_Algo.getFruitEdge(arena.getGraph(), arena.getFruits()[0]), 
 				arena.getGraph().getEdge(0, 1));
 	}
 

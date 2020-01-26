@@ -55,7 +55,9 @@ public class Robot implements robot_data {
 	 * @return the key of the node that this Robot last was on.
 	 */
 	public int getSrc() {
-		return src;
+		synchronized (this) {
+			return src;
+		}
 	}
 	/**
 	 * This function is changing the Robot source node_data .
@@ -63,13 +65,17 @@ public class Robot implements robot_data {
 	 * the next node_data that this Robot will move to.
 	 */
 	public void setSrc(int src) {
-		this.src = src;
+		synchronized (this) {
+			this.src = src;
+		}
 	}
 	/**
 	 * @return the key of the node_data that this Robot is headed to.
 	 */
 	public int getDest() {
-		return dest;
+		synchronized (this) {
+			return dest;
+		}
 	}
 	/**
 	 * This function is changing the Robot destination node_data.
@@ -77,58 +83,76 @@ public class Robot implements robot_data {
 	 * the next node_data that this Robot will move to.
 	 */
 	public void setDest(int dest) {
-		this.dest = dest;
+		synchronized (this) {
+			this.dest = dest;
+		}
 	}
 	/**
 	 * @return the id of this Robot.
 	 */
 	public int getId() {
-		return id;
+		synchronized (this) {
+			return id;
+		}
 	}
 	/**
 	 * This function is changing the Robot id.
 	 * @param id - the new id (Integer) for this Robot.
 	 */
 	public void setId(int id) {
-		this.id = id;
+		synchronized (this) {
+			this.id = id;
+		}
 	}
 	/**
 	 * @return the score value of this Robot.
 	 */
 	public double getValue() {
-		return value;
+		synchronized (this) {
+			return value;
+		}
 	}
 	/**
 	 * This function is changing the Robot value.
 	 * @param value - the new score value (Double) for this Robot.
 	 */
 	public void setValue(double value) {
-		this.value = value;
+		synchronized (this) {
+			this.value = value;	
+		}
 	}
 	/**
 	 * @return the speed value of this Robot.
 	 */
 	public int getSpeed() {
-		return speed;
+		synchronized (this) {
+			return speed;
+		}
 	}
 	/**
 	 * This function is changing speed of the Robot.
 	 * @param speed - the new Robot speed (Integer).
 	 */
 	public void setSpeed(int speed) {
-		this.speed = speed;
+		synchronized (this) {
+			this.speed = speed;
+		}
 	}
 	/**
 	 * @return the position (Point3D) of the Robot.
 	 */
 	public Point3D getPos() {
-		return pos;
+		synchronized (this) {
+			return pos;
+		}
 	}
 	/**
 	 * This function is changing the Robot position.
 	 * @param pos - the new position of the Robot.
 	 */
 	public void setPos(Point3D pos) {
-		this.pos = pos;
+		synchronized (this) {
+			this.pos = pos;
+		}
 	}
 }

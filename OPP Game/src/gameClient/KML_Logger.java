@@ -26,7 +26,7 @@ public class KML_Logger implements Runnable {
 	/**
 	 * The content of the kml output file
 	 */
-	private String content;
+	public String content;
 	/**
 	 * The server of the game
 	 */
@@ -147,6 +147,19 @@ public class KML_Logger implements Runnable {
 	public void writeToFile(String string) throws IOException{
 		PrintWriter pw = new PrintWriter(OutputFile);
 		pw.println(string);
+		pw.close();
+	}
+	/**
+	 * This function create a new kml file by the given fileName,
+	 * that contain this KML_Logger content.
+	 * @param fileName - the name of the new file.
+	 * @throws IOException
+	 */
+	public void newFile(String fileName) throws IOException{
+		fileName = "data/" + fileName + ".kml";
+		File out = new File(fileName);
+		PrintWriter pw = new PrintWriter(out);
+		pw.println(content);
 		pw.close();
 	}
 	/**
