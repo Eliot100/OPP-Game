@@ -11,8 +11,8 @@ For download :
 Click "Clone or download" -> Download zip.
 That it.
 
-Game example stage 23: 
-![game example](https://user-images.githubusercontent.com/46245107/72842254-ab9f5000-3ca0-11ea-8420-851944045bce.JPG)
+Game example stage 11: 
+![stage 11](https://user-images.githubusercontent.com/46245107/73597798-c1cacd00-4538-11ea-9d99-70b2351d5905.JPG)
 
 This is my tabale of stages:
 
