@@ -14,13 +14,17 @@ import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 import Server.Game_Server;
 import Server.game_service;
@@ -68,6 +72,8 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 	private static double minX;
 	private static double maxY;
 	private static double maxX;
+	private static int[] my_res ;
+	private final static int MyId = 206416687 ;
 	/**
 	 * The main
 	 * @param args
@@ -88,7 +94,7 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 	 * @throws IOException 
 	 */
 	public MyGameGUI() throws IOException {
-		int id = Integer.parseInt(JOptionPane.showInputDialog("Enter id" ));
+		int id = MyId;
 		Game_Server.login(id);
 		String userAns = JOptionPane.showInputDialog("Enter 'A' for Aotomatic gui, else the window will be manual." );
 		isAuto = false;
@@ -97,6 +103,7 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 		}
 		firstPaint = true;
 		init(); 
+		my_res = new int[24];
 		bi = new BufferedImage(1500, 1000, BufferedImage.TYPE_INT_RGB );
 		Insets = getInsets();
 	}
@@ -253,7 +260,8 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 		this.setResizable(true);
 		this.setBackground(Color.WHITE);
 		this.setTitle(" GUI ");
-
+		
+		Menu menu2 = new Menu(" Game pleys print ");
 		Menu menu1 = new Menu(" Game Options ");
 		MenuBar menuBar = new MenuBar();
 		this.setMenuBar(menuBar);
@@ -274,6 +282,15 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 				menu1.add(Item);
 			}
 		}
+		menuBar.add(menu2);
+		String[] gameFunctions = {" The number of games ", " My best resalts "}; 
+		for (int i = 0; i < gameFunctions.length; i++) {
+			MenuItem Item = new MenuItem(gameFunctions[i]);
+			Item.addActionListener(this);
+			menu2.add(Item);
+
+		} 
+		
 		this.addMouseListener(this);
 		this.setSize(1300, 700);
 		this.setVisible(true);
@@ -383,6 +400,13 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 			break;
 		case " send log " :
 			server.sendKML(this.KML_Logger.content);
+			break;
+		case " The number of games " :
+			JOptionPane.showMessageDialog(null, "The number of games you play in the server is: " + NumberOfGames());
+			break;
+		case  " My best resalts " :
+			JOptionPane.showMessageDialog(null, printLog());
+			break;
 		}
 	}
 
@@ -455,20 +479,17 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 	private class moveRobot implements Runnable {
 		MyGameGUI GameGUI;
 
-		public moveRobot (MyGameGUI myGameGUI) {
+		private moveRobot (MyGameGUI myGameGUI) {
 			this.GameGUI = myGameGUI;
 		}
 
 		@Override
 		public void run() {
 			GameGUI.newPivot = false;
-
 			robot_data theRobot = setRobot();
 			System.out.println("loc robot : "+theRobot.getPos());
-
 			node_data target = setTarget(GameGUI, theRobot);
 			System.out.println("loc target : "+target.getLocation());
-
 			theRobot.setDest(target.getKey());
 			GameGUI.server.RobotNextNode(theRobot.getId(), target.getKey());
 			GameGUI.server.moveRobots();
@@ -515,7 +536,7 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 			while (server.time2End() > 0) {
 				repaint();
 				try {
-					Thread.sleep(5);
+					Thread.sleep(1);
 				} catch (InterruptedException e) {
 					System.out.println(e.getMessage());
 				}
@@ -530,8 +551,8 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 		t.start();
 	}
 	
-	private void RobotToNext(robot_data robot, flagBol flag, boolean isEeat, ArrayList<fruit_data> theFruits) {
-		RobotToNext RobotEating = new RobotToNext(robot, flag, isEeat, theFruits);
+	private void RobotToNext(robot_data robot, flagBol flag) {
+		RobotToNext RobotEating = new RobotToNext(robot, flag);
 		Thread t = new Thread(RobotEating);
 		t.start();
 	}
@@ -539,69 +560,26 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 	private class RobotToNext implements Runnable {
 		robot_data robot;
 		flagBol flag;
-		boolean isEeat; 
-		ArrayList<fruit_data> theFruits;
 
-		private RobotToNext(robot_data robot, flagBol flag, boolean isEeat, ArrayList<fruit_data> theFruits) {
+		private RobotToNext(robot_data robot, flagBol flag) {
 			this.robot = robot;
 			this.flag = flag;
-			this.isEeat = isEeat;
-			this.theFruits = theFruits;
 		}
 
 		@Override
 		public void run() {
 			edge_data edge = server.getGraph().getEdge(robot.getSrc(), robot.getDest());
 			long startTime = (new Date()).getTime();
-//			if(isEeat) { 
-//				Point3D lastPos = server.getGraph().getNode(edge.getSrc()).getLocation();
-//				Point3D[] theFruitsPos = getFruitsPos(theFruits, lastPos);
-//				for (int i = 0; i < theFruitsPos.length; i++) {
-//					double moveTime = 
-//					
-//					flag.setFlag(true);
-//					try {
-//						Thread.sleep(1);
-//					} catch (InterruptedException e) {
-//						e.printStackTrace();
-//					}
-//					lastPos = theFruitsPos[i];
-// 				}
-//			} else {
-				double moveTime = (edge.getWeight()/robot.getSpeed())*1000;
-				while ((new Date()).getTime() - startTime -100 < moveTime) {
-					try {
-						Thread.sleep(5);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
+			double moveTime = (edge.getWeight()/robot.getSpeed())*1000;
+			while ((new Date()).getTime() - startTime -100 < moveTime ) {
+				try {
+					Thread.sleep(1);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
 				}
-//			}
+			}
 			flag.setFlag(true);
 		}
-
-		private Point3D[] getFruitsPos(ArrayList<fruit_data> theFruits, Point3D src ) {
-			Point3D[] theFruitsPos = new Point3D[theFruits.size()];
-			int i = 0;
-			for (Iterator<fruit_data> iterator = theFruits.iterator(); iterator.hasNext(); i++) {
-				fruit_data fruit = (fruit_data) iterator.next();
-				theFruitsPos[i] = fruit.getPos();
-			}
-			for (int j = 0; j < theFruitsPos.length-1; j++) {
-				for (int jj = j; jj < theFruitsPos.length; jj++) {
-					if (theFruitsPos[j].distance3D(src) > theFruitsPos[jj].distance3D(src))
-						swap(theFruitsPos, j, jj);
-				}
-			}
-			return theFruitsPos;
-		}
-
-		private void swap(Point3D[] theFruitsPos, int j, int jj) {
-			Point3D temp = theFruitsPos[j];
-			theFruitsPos[j] = theFruitsPos[jj];
-			theFruitsPos[jj] = temp;
-		}
-		
 	}
 	
 	private class RobotEating implements Runnable {
@@ -620,22 +598,35 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 			long startTime = (new Date()).getTime();
 			if(robot.getSrc() == Arena_Algo.getFruitEdge(server.getGraph(), fruit).getSrc()
 					&& robot.getDest() == Arena_Algo.getFruitEdge(server.getGraph(), fruit).getDest()) {
-				Point3D p = fruit.getPos();
-				Point3D src = server.getGraph().getNode(robot.getSrc()).getLocation();
-				Point3D dest = server.getGraph().getNode(robot.getDest()).getLocation();
-				long duringTime = (long) ((src.distance2D(p)/src.distance2D(dest))*moveTime);
+				
+				long duringTime = (long) (moveTime);
 				boolean b = true;
+				double eps = 0.0005;
 				while (b) {
-					if ((new Date()).getTime() - startTime > duringTime ) {
-						server.moveRobots();
-						b = false;
-					}
-					else {
-						try {
-							Thread.sleep(5);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
+					try {
+						if ((new Date()).getTime() - startTime < duringTime ) {
+							fruit_data[] fruits = server.getFruits();
+							for (fruit_data fruit : fruits ) {
+								if (robot.getPos().distance3D(fruit.getPos()) < eps) {
+									server.moveRobots();
+									fruits = server.getFruits();
+									robot_data[] robots = server.getRobots();
+									for (robot_data Robot : robots) {
+										if(Robot.getId() == robot.getId())
+											robot.setSpeed(Robot.getSpeed());
+										//									System.out.println(robot.getSpeed());
+									}
+									arena.setRobots(robots);
+								}
+							}
+							try {
+								Thread.sleep(1);
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
 						}
+						else b = false;
+					} catch (Exception e) {
 					}
 				}
 			}
@@ -676,7 +667,7 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 										 src.y()*((moveTime - timePast)/moveTime)+dest.y()*(timePast/moveTime)));
 //				System.out.println(robot.getPos());
 				try {
-					Thread.sleep(50);
+					Thread.sleep(5);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -706,59 +697,48 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 			arena.setRobots(robots);
 			arena.setFruits(fruits);
 			flagBol flag = new flagBol(false);
-//			int i = 0;
+			int i = 0;
 			while (GameGUI.server.time2End() > 0) {
 				if(flag.getFlag()) {
-					server.moveRobots();
 					flag.setFlag(false);
-				}
-				double eps = 0.0000000001;
-				for (robot_data robot : robots) {
-					for (fruit_data fruit : fruits) {
-						if (robot.getPos().distance3D(fruit.getPos()) < eps) {
-							server.moveRobots();
-							fruits = server.getFruits();
-							robots = server.getRobots();
-						}
-					}
+					server.moveRobots();
+					arena.setRobots(server.getRobots());
 				}
 				AutoGame AutoGame = new AutoGame( GameGUI.server, GameGUI.arena);
 				for (robot_data robot : robots) {
 					if (robot.getDest() == -1) {
-						int dest = AutoGame.moveSimultan(robot);
+						int dest = AutoGame.moveSimultan(robot, robots, fruits);
 						robot.setDest(dest);
+						server.RobotNextNode(robot.getId(), dest);
+//						server.moveRobots();
 						RobotMovement(robot);
-						boolean isEeat = false;
-						ArrayList<fruit_data> TheFruits = new ArrayList<fruit_data>();
 						for (fruit_data fruit : fruits) {
 							if(robot.getSrc() == Arena_Algo.getFruitEdge(arena.getGraph(), fruit).getSrc()
 									&& robot.getDest() == Arena_Algo.getFruitEdge(arena.getGraph(), fruit).getDest()) {
-								isEeat = true;
-								TheFruits.add(fruit);
 								RobotEating(robot, fruit);
 							}
 						}
-						RobotToNext(robot, flag, isEeat, TheFruits);
-						server.RobotNextNode(robot.getId(), dest);
-//						server.moveRobots();
+						RobotToNext(robot, flag);
 					}
 				}
 				fruits = server.getFruits();
 				robots = server.getRobots();
-//				arena.setRobots(robots);
 				arena.setFruits(fruits);
 				try {
 					Thread.sleep(1);
 				} catch (InterruptedException e) {
 					System.out.println(e.getMessage());
 				}
-//				i++;
+				i++;
+				if(i%200 == 0) {
+					server.moveRobots();
+				}
 //				if(i%20 == 0) {
-//					for (robot_data robot : robots) {
-//						System.out.println((int) (i/20)+") robot id: "+robot.getId()+", robot pos: "+robot.getPos() +", robot src: "+robot.getSrc() + 
-//								", robot dest: "+robot.getDest() +" .");
-//					}
+//				for (robot_data robot : robots) {
+//					System.out.println((int) (i/20)+") robot id: "+robot.getId()+", robot pos: "+robot.getPos() +", robot src: "+robot.getSrc() + 
+//							", robot dest: "+robot.getDest() +" .");
 //				}
+//			}
 			}
 			System.out.println("End of game.");
 			isEnded = true;
@@ -844,4 +824,314 @@ public class MyGameGUI extends JFrame implements ActionListener, MouseListener, 
 			GameGUI.repaint();
 		}
 	}
+	/**
+	 * this function returns number of games that were played 
+	 */
+	private int NumberOfGames() {
+		int i =0 ;
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			Connection connection = 
+					DriverManager.getConnection(SimpleDB.jdbcUrl, SimpleDB.jdbcUser, SimpleDB.jdbcUserPassword);
+			Statement statement = connection.createStatement();
+			String allCustomersQuery = "SELECT * FROM Logs WHERE UserID = "+MyId+";";
+			ResultSet resultSet = statement.executeQuery(allCustomersQuery);
+
+			while(resultSet.next())
+			{
+				i++;
+			}
+			resultSet.close();
+			statement.close();		
+			connection.close();		
+		}
+
+		catch (SQLException sqle) {
+			System.out.println("SQLException: " + sqle.getMessage());
+			System.out.println("Vendor Error: " + sqle.getErrorCode());
+		}
+		catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		return i ;
+	}
+	/**
+	 * this function goes through the data base games 
+	 * gets all our team members id games
+	 * returns our total games played In the server
+	 **/
+	private static String printLog() {
+		String[]arr=new String[12];
+		int max0 = 0,max1 = 0,max3 = 0,max5 = 0,max9 = 0,max11 = 0,
+				max13 = 0,max16 = 0,max19 = 0,max20 = 0,max23 = 0;
+
+		boolean first_time0 = false,first_time1 = false,first_time3 = false;
+		boolean first_time5 = false;
+		boolean first_time9 = false;
+		boolean first_time11 = false;
+		boolean first_time13 = false;
+		boolean first_time16 = false;
+		boolean first_time19 = false;
+		boolean first_time20 = false;
+		boolean first_time23 = false;
+
+		String temp = "";
+		int arr_moves[] = {290,580,0,580,0,500,0,0,0,580,0,580,0,580,0,0,290,0,0,580,290,0,0,1140};
+		int arr_scores[] = {125,436,0,713,0,570,0,0,0,480,0,1050,0,310,0,0,235,0,0,250,200,0,0,1000};
+
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			Connection connection = 
+					DriverManager.getConnection(SimpleDB.jdbcUrl, SimpleDB.jdbcUser, SimpleDB.jdbcUserPassword);
+			Statement statement = connection.createStatement();
+			String allCustomersQuery = "SELECT * FROM Logs WHERE UserID= "+MyId+";";
+			ResultSet resultSet = statement.executeQuery(allCustomersQuery);
+			while(resultSet.next())
+			{
+				if(resultSet.getInt("levelID")==0) 
+				{
+					if(first_time0==false &&  resultSet.getInt("moves")<=arr_moves[resultSet.getInt("levelID")]) 
+					{
+						max0 = resultSet.getInt("score");
+						arr[0]="Game:"+0+"     score:"+max0+"    Moves:"+resultSet.getInt("moves");
+						my_res[0]=max0;
+					}
+					else {
+						if(resultSet.getInt("score")>max0 &&  resultSet.getInt("moves")<=arr_moves[resultSet.getInt("levelID")] && 
+								resultSet.getInt("score")>=arr_scores[resultSet.getInt("levelID")]) 
+						{
+							max0=resultSet.getInt("score");
+							arr[0]="Game:"+0+"     score:"+max0+"    Moves:"+resultSet.getInt("moves");
+							my_res[0]=max0;
+						}
+					}
+					first_time0=true;
+				}
+				if(resultSet.getInt("levelID")==1) 
+				{
+					if(first_time1==false &&  resultSet.getInt("moves")<=arr_moves[resultSet.getInt("levelID")]) 
+					{
+						max1=resultSet.getInt("score");
+						arr[1]="Game:"+1+"     score:"+max1+"    Moves:"+resultSet.getInt("moves");
+						my_res[1]=max1;
+
+					}
+					else {
+						if(resultSet.getInt("score")>max1 &&  resultSet.getInt("moves")<=arr_moves[resultSet.getInt("levelID")] && 
+								resultSet.getInt("score")>=arr_scores[resultSet.getInt("levelID")]) 
+						{
+							max1=resultSet.getInt("score");
+							arr[1]="Game:"+1+"     score:"+max1+"    Moves:"+resultSet.getInt("moves");
+							my_res[1]=max1;
+						}
+					}
+					first_time1=true;
+
+				}
+				if(resultSet.getInt("levelID")==3) 
+				{
+					if(first_time3==false&&  resultSet.getInt("moves")<=arr_moves[resultSet.getInt("levelID")]) 
+					{
+						max1=resultSet.getInt("score");
+						arr[2]="Game:"+3+"     score:"+max3+"    Moves:"+resultSet.getInt("moves");
+						my_res[3]=max3;
+					}
+					else {
+						if(resultSet.getInt("score")>max3 &&  resultSet.getInt("moves")<=arr_moves[resultSet.getInt("levelID")] && 
+								resultSet.getInt("score")>=arr_scores[resultSet.getInt("levelID")]) 
+						{
+							max3=resultSet.getInt("score");
+							arr[2]="Game:"+3+"     score:"+max3+"    Moves:"+resultSet.getInt("moves");
+							my_res[3]=max3;
+
+						}
+					}
+					first_time3=true;
+
+				}
+				if(resultSet.getInt("levelID")==5) 
+				{
+					if(first_time5==false && resultSet.getInt("moves")<=arr_moves[resultSet.getInt("levelID")]) 
+					{
+						max5=resultSet.getInt("score");
+						arr[3]="Game:"+5+"     score:"+max5+"    Moves:"+resultSet.getInt("moves");
+						my_res[5]=max5;
+					}
+					else {
+						if(resultSet.getInt("score")>max5 &&  resultSet.getInt("moves")<=arr_moves[resultSet.getInt("levelID")] && 
+								resultSet.getInt("score")>=arr_scores[resultSet.getInt("levelID")]) 
+						{
+							max5=resultSet.getInt("score");
+							arr[3]="Game:"+5+"     score:"+max5+"    Moves:"+resultSet.getInt("moves");
+							my_res[5]=max5;
+						}
+					}
+					first_time5=true;
+				}
+				if(resultSet.getInt("levelID")==9) 
+				{
+					if(first_time9==false &&  resultSet.getInt("moves")<=arr_moves[resultSet.getInt("levelID")]) 
+					{
+						max9=resultSet.getInt("score");
+						arr[4]="Game:"+9+"     score:"+max9+"    Moves:"+resultSet.getInt("moves");
+						my_res[9]=max9;
+
+					}
+					else {
+						if(resultSet.getInt("score")>max9 &&  resultSet.getInt("moves")<=arr_moves[resultSet.getInt("levelID")] && 
+								resultSet.getInt("score")>=arr_scores[resultSet.getInt("levelID")]) 
+						{
+							max9=resultSet.getInt("score");
+							arr[4]="Game:"+9+"     score:"+max9+"    Moves:"+resultSet.getInt("moves");
+							my_res[9]=max9;
+						}
+					}
+					first_time9=true;
+				}
+				if(resultSet.getInt("levelID")==11) 
+				{
+					if(first_time11==false &&  resultSet.getInt("moves")<=arr_moves[resultSet.getInt("levelID")]) 
+					{
+						max11=resultSet.getInt("score");
+						arr[5]="Game:"+11+"   score:"+max11+"  Moves:"+resultSet.getInt("moves");
+						my_res[11]=max11;
+					}
+					else {
+						if(resultSet.getInt("score")>max11 &&  resultSet.getInt("moves")<=arr_moves[resultSet.getInt("levelID")] && 
+								resultSet.getInt("score")>=arr_scores[resultSet.getInt("levelID")]) 
+						{
+							max11=resultSet.getInt("score");
+							arr[5]="Game:"+11+"   score:"+max11+"  Moves:"+resultSet.getInt("moves");
+							my_res[11]=max11;
+						}
+					}
+					first_time11=true;
+				}
+				if(resultSet.getInt("levelID")==13) 
+				{
+					if(first_time13==false&&  resultSet.getInt("moves")<=arr_moves[resultSet.getInt("levelID")]) 
+					{
+						max13=resultSet.getInt("score");
+						arr[6]="Game:"+13+"   score:"+max13+"    Moves:"+resultSet.getInt("moves");
+						my_res[13]=max13;
+					}
+					else {
+						if(resultSet.getInt("score")>max13 &&  resultSet.getInt("moves")<=arr_moves[resultSet.getInt("levelID")] && 
+								resultSet.getInt("score")>=arr_scores[resultSet.getInt("levelID")]) 
+						{
+							max13=resultSet.getInt("score");
+							arr[6]="Game:"+13+"   score:"+max13+"    Moves:"+resultSet.getInt("moves");
+							my_res[13]=max13;
+						}
+					}
+					first_time13=true;
+				}
+				if(resultSet.getInt("levelID")==16) 
+				{
+					if(first_time16==false &&  resultSet.getInt("moves")<=arr_moves[resultSet.getInt("levelID")]) 
+					{
+						max16=resultSet.getInt("score");
+						arr[7]="Game:"+16+"   score:"+max16+"    Moves:"+resultSet.getInt("moves");
+						my_res[16]=max16;
+					}
+					else {
+						if(resultSet.getInt("score")>max16 &&  resultSet.getInt("moves")<=arr_moves[resultSet.getInt("levelID")] && 
+								resultSet.getInt("score")>=arr_scores[resultSet.getInt("levelID")]) 
+						{
+							max16=resultSet.getInt("score");
+							arr[7]="Game:"+16+"   score:"+max16+"    Moves:"+resultSet.getInt("moves");
+							my_res[16]=max16;
+						}
+					}
+
+					first_time16=true;
+				}
+				if(resultSet.getInt("levelID")==19) 
+				{
+					if(first_time19==false &&  resultSet.getInt("moves")<=arr_moves[resultSet.getInt("levelID")] ) 
+					{
+						max19=resultSet.getInt("score");
+						arr[8]="Game:"+19+"   score:"+max19+"    Moves:"+resultSet.getInt("moves");
+						my_res[19]=max19;
+					}
+					else {
+						if(resultSet.getInt("score")>max19 &&  resultSet.getInt("moves")<=arr_moves[resultSet.getInt("levelID")] && 
+								resultSet.getInt("score")>=arr_scores[resultSet.getInt("levelID")]) 
+						{
+							max19=resultSet.getInt("score");
+							arr[8]="Game:"+19+"   score:"+max19+"    Moves:"+resultSet.getInt("moves");
+							my_res[19]=max19;
+						}
+					}
+					first_time19=true;
+				}
+				if(resultSet.getInt("levelID")==20) 
+				{
+					if(first_time20==false &&  resultSet.getInt("moves")<=arr_moves[resultSet.getInt("levelID")]) 
+					{
+						max20=resultSet.getInt("score");
+						arr[9]="Game:"+20+"   score:"+max20+"    Moves:"+resultSet.getInt("moves");
+						my_res[20]=max20;
+
+					}
+					else {
+						if(resultSet.getInt("score")>max20 &&  resultSet.getInt("moves")<=arr_moves[resultSet.getInt("levelID")] && 
+								resultSet.getInt("score")>=arr_scores[resultSet.getInt("levelID")]) 
+						{
+							max20=resultSet.getInt("score");
+							arr[9]="Game:"+20+"   score:"+max20+"    Moves:"+resultSet.getInt("moves");
+							my_res[20]=max20;
+						}
+					}
+					first_time20=true;
+				}
+				if(resultSet.getInt("levelID")==23) 
+				{
+					if(first_time23==false &&  resultSet.getInt("moves")<=arr_moves[resultSet.getInt("levelID")]) 
+					{
+						max23=resultSet.getInt("score");
+						arr[10]="Game:"+23+"   score:"+max23+"  Moves:"+resultSet.getInt("moves");
+						my_res[23]=max23;
+					}
+					else {
+						if(resultSet.getInt("score")>max23 &&  resultSet.getInt("moves")<=arr_moves[resultSet.getInt("levelID")] && 
+												resultSet.getInt("score")>=arr_scores[resultSet.getInt("levelID")]) 
+						{
+							max23=resultSet.getInt("score");
+							arr[10]="Game:"+23+"   score:"+max23+"  Moves:"+resultSet.getInt("moves");
+							my_res[23]=max23;
+						}
+					}
+					first_time23=true;
+				}
+
+			}
+			for (int i = 0; i < arr.length; i++) 
+			{
+				if(arr[i] != null)
+					temp+=arr[i]+"\n";
+			}
+
+			resultSet.close();
+			statement.close();		
+			connection.close();		
+		}
+
+		catch (SQLException sqle) {
+			System.out.println("SQLException: " + sqle.getMessage());
+			System.out.println("Vendor Error: " + sqle.getErrorCode());
+		}
+		catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		for (int i = 1; i < arr.length-1; i++) {
+			if(arr[i]=="" || arr[i]==null) {
+				String curr = arr[i-1];
+				arr[11]=curr.substring(curr.indexOf(':')+1, curr.indexOf('s')-1).trim();
+				break;
+			}
+		}
+		return temp;
+	}
 }
+

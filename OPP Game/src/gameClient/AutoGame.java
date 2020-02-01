@@ -41,44 +41,22 @@ public class AutoGame {
 		else {
 			for (int i = 0; i < fruitsNum; i++) 
 				server.placeRobot(Arena_Algo.getFruitEdge(server.getGraph(), fruits[i]).getSrc());
-//			for (int i = 0; i < robotsNum-fruitsNum; i++) 
-//				server.placeRobot(randomPlace(arena.getGraph()));
 		}
 	}
 	
-//	private int randomPlace(DGraph graph) {
-//		int ans = 0;
-//		int r = (int)(1+(Math.random()*(graph.nodeSize()-1)));
-//		Iterator<node_data> itr = graph.getV().iterator();
-//		for(int i=0; i<r ;i++) 
-//			ans = itr.next().getKey();
-//		return ans;
-//	}
-	
-//	public void randomWalk(robot_data robot) {
-//		int dest = -1;
-//		int r = (int)(Math.random()*(arena.getGraph().getE(robot.getSrc()).size()));
-//		Iterator<edge_data> itr = arena.getGraph().getE(robot.getSrc()).iterator();
-//		for(int i=0; i<r ;i++) 
-//			dest = itr.next().getDest();
-//		robot.setDest(dest);
-//		server.RobotNextNode(robot.getId(), dest);
-//	}
 	/** 
 	 * @param robot 
 	 * @return the "best" destantion for this robot (given the server robots). 
 	 */
-	public int moveSimultan(robot_data robot) {
+	public int moveSimultan(robot_data robot, robot_data[] robots, fruit_data[] fruits) {
 		int dest = 0;
-		robot_data[] robots = server.getRobots();
-		fruit_data[] fruits = server.getFruits();
 		double[][] RobotFruitPath = new double[robots.length][fruits.length]; 
 		double[] minDist = new double[robots.length];
 		int[] minDistPlace = new int[robots.length];
 		setRobotFruitPathDistMatrix(RobotFruitPath, fruits, robots, minDist, minDistPlace );
 		boolean[] fruitsflags = new boolean[fruits.length];
 		boolean[] robotsflags = new boolean[robots.length];
-		for (int ii = 0; ii < robots.length; ii++) {
+		for (int i = 0; i < robots.length; i++) {
 			int tempPlace = SetRobotNeerFruit(robots, robotsflags, minDist);
 			robotsflags[tempPlace] = true;
 			fruitsflags[minDistPlace[tempPlace]] = true;

@@ -112,25 +112,23 @@ public class MyServer implements game_server {
 	public fruit_data[] getFruits() {
 		boolean b = true;
 		fruit_data[] fruits = null;
-		while (b) {
-			b = false;
-			fruits = new Fruit[fruitsSize()];
-			Iterator<String> f_iter = game.getFruits().iterator();
-			int i = 0;
-			while(f_iter.hasNext()) {
-				try {
+		try {
+			while (b) {
+				b = false;
+				fruits = new Fruit[fruitsSize()];
+				Iterator<String> f_iter = game.getFruits().iterator();
+				int i = 0;
+				while(f_iter.hasNext()) {
 					JSONObject JSONfruit = (new JSONObject(f_iter.next())).getJSONObject("Fruit");
 					fruits[i] = new Fruit(JSONfruit) ;
-				} catch (JSONException e) {
-					throw new RuntimeException(e.toString());
+					i++;
 				}
-				i++;
+				for (fruit_data fruit : fruits) {
+					if(fruit == null)
+						b = true;
+				}
 			}
-			for (fruit_data fruit : fruits) {
-				if(fruit == null)
-					b = true;
-			}
-		}
+		} catch (Exception e) {}
 		return fruits;
 	}
 	/**

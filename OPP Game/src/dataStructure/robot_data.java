@@ -33,6 +33,7 @@ public interface robot_data {
 	 * @return the speed value of this robot_data.
 	 */
 	public int getSpeed();
+	public void setSpeed(int speed);
 	/**
 	 * @return the position (Point3D) of the robot_data.
 	 */

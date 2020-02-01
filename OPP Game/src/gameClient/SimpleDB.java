@@ -20,10 +20,10 @@ public class SimpleDB {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-			int id1 = 316334440;  // "real" existing ID & KML
-			int id2 = 12345678;
+			int id1 = 206416687;  // "real" existing ID & KML
+//			int id2 = 12345678;
 			int level = 0;//1,2,3
-			printLog(id2);
+			printLog(id1);
 			allUsers();	
 			String kml1 = getKML(id1,level);
 			System.out.println("***** KML1 file example: ******");
