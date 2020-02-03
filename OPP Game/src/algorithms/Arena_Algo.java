@@ -41,10 +41,12 @@ public class Arena_Algo {
 		} catch (Exception e) {
 			return null;
 		}
+		
 		int r = (int)(1+(Math.random()*(TheEdge.size()-1)));
 		Iterator<edge_data> itr = TheEdge.iterator();
 		for(int i=0; i<r ;i++) 
 			fruitEdge = itr.next();
+//		while(itr.hasNext())
 		return fruitEdge;
 	}
 	

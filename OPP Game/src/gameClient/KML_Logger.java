@@ -133,11 +133,6 @@ public class KML_Logger implements Runnable {
 			}
 		}
 		content += footer;
-		try {
-			writeToFile(content);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 	/**
 	 * This function is replace the content of output file with a given string

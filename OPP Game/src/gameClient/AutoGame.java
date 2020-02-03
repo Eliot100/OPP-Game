@@ -31,16 +31,20 @@ public class AutoGame {
 	 * Place all the robots on the arena
 	 */
 	public void setRobots() {
-		int robotsNum = server.robotsSize();
-		int fruitsNum = server.fruitsSize();
 		fruit_data[] fruits = server.getFruits();
-		if (robotsNum <= fruitsNum) {
-			for (int i = 0; i < robotsNum; i++) 
-				server.placeRobot(Arena_Algo.getFruitEdge(server.getGraph(), fruits[i]).getSrc());
-		}
-		else {
-			for (int i = 0; i < fruitsNum; i++) 
-				server.placeRobot(Arena_Algo.getFruitEdge(server.getGraph(), fruits[i]).getSrc());
+		boolean[] flags = new boolean[fruits.length];
+		for (int i = 0; i < flags.length; i++) {
+			int maxPlace = 0;
+			double max = 0;
+			for (int j = 0; j < fruits.length; j++) {
+				if (flags[j]) continue;
+				if(fruits[j].getValue() > max) {
+					maxPlace = j;
+					max = fruits[j].getValue();
+				}
+			}
+			flags[maxPlace] = true;
+			server.placeRobot(Arena_Algo.getFruitEdge(server.getGraph(), fruits[maxPlace]).getSrc());
 		}
 	}
 	
@@ -49,7 +53,7 @@ public class AutoGame {
 	 * @return the "best" destantion for this robot (given the server robots). 
 	 */
 	public int moveSimultan(robot_data robot, robot_data[] robots, fruit_data[] fruits) {
-		int dest = 0;
+		int dest = -1;
 		double[][] RobotFruitPath = new double[robots.length][fruits.length]; 
 		double[] minDist = new double[robots.length];
 		int[] minDistPlace = new int[robots.length];
@@ -64,6 +68,12 @@ public class AutoGame {
 				dest = robotToFruitPlace(robots[tempPlace], minDistPlace[tempPlace]);
 			SetRobotsNeerestFruit(RobotFruitPath, fruits, robots, robotsflags, fruitsflags, minDist, minDistPlace);
 		}
+//		boolean[] flags = new boolean[fruits.length];
+//		for (robot_data Robot : robots) {
+//			int tempDest = RobotDest2ClosestFruit(Robot, flags);
+//			if(Robot.getId() == robot.getId())
+//				return tempDest;
+//		}
 		return dest;
 	}
 	
@@ -138,7 +148,7 @@ public class AutoGame {
 		return dest;
 	}
 	
-//	private void move2ClosestFruit(robot_data robot, boolean[] flags) {
+//	private int RobotDest2ClosestFruit(robot_data robot, boolean[] flags) {
 //		int dest = -1;
 //		fruit_data[] fruits = server.getFruits();
 //		double dist = 0;
@@ -194,6 +204,7 @@ public class AutoGame {
 //		robot.setDest(dest);
 //		server.RobotNextNode(robot.getId(), dest);
 //		flags[fruitPlace] = true;
+//		return dest;
 //	}
 
 //	private class randomWalk implements Runnable {
