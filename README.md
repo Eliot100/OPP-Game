@@ -16,4 +16,4 @@ Game example stage 11:
 
 This is my tabale of stages:
 
-![שלבים שעברתי](https://user-images.githubusercontent.com/46245107/73596967-3c431f00-4530-11ea-9a80-b839fe5f3f18.JPG)
+![שלבים שעברתי](https://user-images.githubusercontent.com/46245107/73639111-6aca1280-4674-11ea-82e4-601e7c2d74a9.JPG)
